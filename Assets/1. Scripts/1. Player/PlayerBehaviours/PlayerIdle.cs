@@ -15,21 +15,21 @@ public class PlayerIdle : PlayerBehaviour
     public override void CheckInput()
     {
         base.CheckInput();
-
-        playerMove.horizontalAxis = Input.GetAxisRaw("Horizontal");
-        playerMove.verticalAxis = Input.GetAxisRaw("Vertical");
     }
 
     public override void CheckState()
     {
         base.CheckState();
+
+        if (playerMove.horizontalAxis != 0 || playerMove.verticalAxis != 0)
+        {
+            Function.SetBehaviour(player, new PlayerWalk(player));
+        }
     }
 
     public override void Perform()
     {
         base.Perform();
-
-        playerMove.GroundMove();
     }
 
     public override void Exit()

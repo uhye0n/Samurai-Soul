@@ -7,6 +7,7 @@ public class Player : MonoBehaviour
 // 컴포넌트 호출
     public Rigidbody rb;
     public MeshCollider mc;
+    public Animator an;
 
 // 플레이어 클래스 호출
     public PlayerMove playerMove;
@@ -19,6 +20,7 @@ public class Player : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         mc = GetComponent<MeshCollider>();
+        an = GetComponent<Animator>();
 
         playerMove = new PlayerMove();
         playerMove.Initialize(this);
@@ -32,6 +34,7 @@ public class Player : MonoBehaviour
     void Update()
     {
         playerBehaviour?.CheckInput();
+        playerBehaviour?.CheckState();
     }
 
     void FixedUpdate()

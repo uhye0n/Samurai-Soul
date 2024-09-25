@@ -5,13 +5,16 @@ using UnityEngine;
 public class PlayerBehaviour
 {
     protected Player player;
+    protected readonly string playerAnimation;
     protected PlayerMove playerMove;
     protected PlayerStats playerStats;
     protected PlayerCombat playerCombat;
 
+
     public PlayerBehaviour(Player player)
     {
         this.player = player;
+        playerAnimation = GetType().Name;
         playerMove = player.playerMove;
         playerStats = player.playerStats;
         playerCombat = player.playerCombat;
@@ -19,13 +22,14 @@ public class PlayerBehaviour
 
     public virtual void Enter()
     {
-
+        player.an.SetBool(playerAnimation, true);
     }
 
-    public virtual void CheckInput()
-    {
-
-    }
+        public virtual void CheckInput()
+        {
+            playerMove.horizontalAxis = Input.GetAxisRaw("Horizontal");
+            playerMove.verticalAxis = Input.GetAxisRaw("Vertical");
+        }
 
     public virtual void CheckState()
     {
@@ -39,16 +43,6 @@ public class PlayerBehaviour
 
     public virtual void Exit()
     {
-
-    }
-
-    public virtual void OnTriggerEnter2D(Collider2D collision)
-    {
-
-    }
-
-    public virtual void OnTriggerExit2D(Collider2D collision)
-    {
-
+        player.an.SetBool(playerAnimation, false);
     }
 }
