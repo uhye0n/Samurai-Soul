@@ -21,4 +21,9 @@ public class PlayerMove
         moveVector = new Vector3(horizontalAxis, 0, verticalAxis).normalized;
         player.transform.position += speed * Time.deltaTime * moveVector;
     }
+
+    public void Rotation()
+    {
+        player.transform.LookAt(player.transform.position + moveVector);
+    }
 }

@@ -33,6 +33,7 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+        playerMove.Rotation();
         playerBehaviour?.CheckInput();
         playerBehaviour?.CheckState();
     }
