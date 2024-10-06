@@ -19,6 +19,8 @@ public class PlayerIdle : PlayerBehaviour
 
     public override void CheckState()
     {
+        player.an.SetFloat("MoveSpeed", 0f);
+
         base.CheckState();
 
         if (playerMove.horizontalAxis != 0 || playerMove.verticalAxis != 0)

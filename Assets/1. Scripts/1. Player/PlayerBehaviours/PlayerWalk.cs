@@ -15,9 +15,6 @@ public class PlayerWalk : PlayerBehaviour
     public override void CheckInput()
     {
         base.CheckInput();
-
-        playerMove.horizontalAxis = Input.GetAxisRaw("Horizontal");
-        playerMove.verticalAxis = Input.GetAxisRaw("Vertical");
     }
 
     public override void CheckState()

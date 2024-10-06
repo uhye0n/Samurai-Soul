@@ -6,7 +6,7 @@ public class Player : MonoBehaviour
 {
 // 컴포넌트 호출
     public Rigidbody rb;
-    public MeshCollider mc;
+    public CapsuleCollider cc;
     public Animator an;
 
 // 플레이어 클래스 호출
@@ -19,7 +19,7 @@ public class Player : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        mc = GetComponent<MeshCollider>();
+        cc = GetComponent<CapsuleCollider>();
         an = GetComponent<Animator>();
 
         playerMove = new PlayerMove();

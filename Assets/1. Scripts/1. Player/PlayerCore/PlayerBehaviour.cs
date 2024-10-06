@@ -25,11 +25,11 @@ public class PlayerBehaviour
         player.an.SetBool(playerAnimation, true);
     }
 
-        public virtual void CheckInput()
-        {
-            playerMove.horizontalAxis = Input.GetAxisRaw("Horizontal");
-            playerMove.verticalAxis = Input.GetAxisRaw("Vertical");
-        }
+    public virtual void CheckInput()
+    {
+        playerMove.horizontalAxis = Input.GetAxis("Horizontal");
+        playerMove.verticalAxis = Input.GetAxis("Vertical");
+    }
 
     public virtual void CheckState()
     {
