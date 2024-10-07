@@ -19,6 +19,8 @@ public class PlayerWalk : PlayerBehaviour
 
     public override void CheckState()
     {
+        player.an.SetFloat("MoveSpeed", player.playerMove.moveVector.magnitude);
+
         if (playerMove.horizontalAxis == 0 && playerMove.verticalAxis == 0)
         {
             Function.SetBehaviour(player, new PlayerIdle(player));

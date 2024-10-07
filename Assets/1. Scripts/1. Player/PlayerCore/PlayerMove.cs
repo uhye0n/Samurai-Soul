@@ -10,6 +10,9 @@ public class PlayerMove
     public float horizontalAxis;
     public float verticalAxis;
     public Vector3 moveVector;
+    public Vector3 currentDirection;
+    public Vector3 prevDirection;
+    public bool hasTurnedAround = false;
 
     public void Initialize(Player player)
     {
@@ -25,5 +28,22 @@ public class PlayerMove
     public void Rotation()
     {
         player.transform.LookAt(player.transform.position + moveVector);
+        currentDirection = player.transform.forward;
+        prevDirection = currentDirection;
+
+        if (prevDirection != Vector3.zero)
+        {
+            float dotProduct = Vector3.Dot(prevDirection, currentDirection);
+
+            if (dotProduct < -0.5f && !hasTurnedAround)
+            {
+                player.an.SetTrigger("TurnAround");
+                hasTurnedAround = true;
+            }
+            else if (dotProduct > -0.5f)
+            {
+                hasTurnedAround = false;
+            }
+        }
     }
 }

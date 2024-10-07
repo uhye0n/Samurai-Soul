@@ -22,7 +22,7 @@ public class PlayerBehaviour
 
     public virtual void Enter()
     {
-        player.an.SetBool(playerAnimation, true);
+
     }
 
     public virtual void CheckInput()
@@ -43,6 +43,6 @@ public class PlayerBehaviour
 
     public virtual void Exit()
     {
-        player.an.SetBool(playerAnimation, false);
+
     }
 }
