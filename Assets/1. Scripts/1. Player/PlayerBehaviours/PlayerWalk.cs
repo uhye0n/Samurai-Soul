@@ -30,6 +30,7 @@ public class PlayerWalk : PlayerBehaviour
     public override void Perform()
     {
         base.Perform();
+        playerMove.Rotation();
         playerMove.GroundMove();
     }
 

@@ -6,6 +6,7 @@ public class PlayerBehaviour
 {
     protected Player player;
     protected readonly string playerAnimation;
+    protected PlayerInput playerInput;
     protected PlayerMove playerMove;
     protected PlayerStats playerStats;
     protected PlayerCombat playerCombat;
@@ -15,6 +16,7 @@ public class PlayerBehaviour
     {
         this.player = player;
         playerAnimation = GetType().Name;
+        playerInput = player.playerInput;
         playerMove = player.playerMove;
         playerStats = player.playerStats;
         playerCombat = player.playerCombat;
@@ -27,8 +29,7 @@ public class PlayerBehaviour
 
     public virtual void CheckInput()
     {
-        playerMove.horizontalAxis = Input.GetAxis("Horizontal");
-        playerMove.verticalAxis = Input.GetAxis("Vertical");
+        playerInput.TouchInput();
     }
 
     public virtual void CheckState()

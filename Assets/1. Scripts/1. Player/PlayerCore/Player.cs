@@ -10,10 +10,12 @@ public class Player : MonoBehaviour
     public Animator an;
 
 // 플레이어 클래스 호출
+    public PlayerInput playerInput;
     public PlayerMove playerMove;
     public PlayerStats playerStats;
     public PlayerCombat playerCombat;
     public PlayerBehaviour playerBehaviour;
+    public VariableJoystick variableJoystick;
 
 // MonoBehaviour 상속 메서드
     void Awake()
@@ -24,6 +26,9 @@ public class Player : MonoBehaviour
 
         playerMove = new PlayerMove();
         playerMove.Initialize(this);
+
+        playerInput = new PlayerInput();
+        playerInput.Initialize(this);
     }
 
     void Start()
@@ -33,7 +38,6 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        playerMove.Rotation();
         playerBehaviour?.CheckInput();
         playerBehaviour?.CheckState();
     }
