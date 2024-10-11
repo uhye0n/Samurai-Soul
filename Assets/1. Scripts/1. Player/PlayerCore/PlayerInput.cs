@@ -17,11 +17,9 @@ public class PlayerInput
     
     public void TouchInput()
     {
-        float horizontal = player.variableJoystick.Horizontal;
-        float vertical = player.variableJoystick.Vertical;
-
-        player.playerMove.horizontalAxis = horizontal;
-        player.playerMove.verticalAxis = vertical;
+        player.playerMove.horizontalAxis = player.variableJoystick.Horizontal;
+        player.playerMove.verticalAxis = player.variableJoystick.Vertical;
+        Debug.Log($"Horizontal: {player.playerMove.horizontalAxis}, Vertical: {player.playerMove.verticalAxis}");
     }
 
     // public void TouchInput()
