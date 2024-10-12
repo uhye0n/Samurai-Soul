@@ -27,6 +27,10 @@ public class PlayerIdle : PlayerBehaviour
         {
             Function.SetBehaviour(player, new PlayerWalk(player));
         }
+        else if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Function.SetBehaviour(player, new PlayerCombat(player));
+        }
     }
 
     public override void Perform()

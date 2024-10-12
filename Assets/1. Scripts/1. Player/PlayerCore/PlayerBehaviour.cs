@@ -9,7 +9,6 @@ public class PlayerBehaviour
     protected PlayerInput playerInput;
     protected PlayerMove playerMove;
     protected PlayerStats playerStats;
-    protected PlayerCombat playerCombat;
 
 
     public PlayerBehaviour(Player player)
@@ -19,7 +18,6 @@ public class PlayerBehaviour
         playerInput = player.playerInput;
         playerMove = player.playerMove;
         playerStats = player.playerStats;
-        playerCombat = player.playerCombat;
     }
 
     public virtual void Enter()

@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerMove
@@ -9,10 +8,7 @@ public class PlayerMove
     public float speed = 5f;
     public float horizontalAxis;
     public float verticalAxis;
-    public float turnAngle;
     public Vector3 moveVector;
-
-    public bool animationBusy = false;
 
     public void Initialize(Player player)
     {
@@ -27,6 +23,7 @@ public class PlayerMove
 
     public void Rotation()
     {
-        player.transform.LookAt(player.transform.position + moveVector);
+        Quaternion targetRotation = Quaternion.LookRotation(moveVector);
+        player.transform.rotation = Quaternion.RotateTowards(player.transform.rotation, targetRotation, 1000 * Time.deltaTime);
     }
 }

@@ -13,7 +13,6 @@ public class Player : MonoBehaviour
     public PlayerInput playerInput;
     public PlayerMove playerMove;
     public PlayerStats playerStats;
-    public PlayerCombat playerCombat;
     public PlayerBehaviour playerBehaviour;
     public VariableJoystick variableJoystick;
 
