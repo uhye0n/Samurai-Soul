@@ -1,0 +1,5 @@
+*.so filter=lfs diff=lfs merge=lfs -text
+Assets/Asset[[:space:]]Store/ARPGSamurai/Animations/Generic/ARPG_Samurai.fbx filter=lfs diff=lfs merge=lfs -text
+*.zip filter=lfs diff=lfs merge=lfs -text
+C:/Unity/Project/Batto-Noto/Assets/Asset[[:space:]]Store/ARPGSamurai/Additional_Animations/Humanoid/ARPG_Samurai_Additional.fbx filter=lfs diff=lfs merge=lfs -text
+ARPG_Samurai_Additional.fbx filter=lfs diff=lfs merge=lfs -text
