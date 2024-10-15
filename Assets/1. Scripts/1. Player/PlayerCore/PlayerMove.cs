@@ -26,4 +26,9 @@ public class PlayerMove
         Quaternion targetRotation = Quaternion.LookRotation(moveVector);
         player.transform.rotation = Quaternion.RotateTowards(player.transform.rotation, targetRotation, 1000 * Time.deltaTime);
     }
+
+    public void LookEnemy()
+    {
+        
+    }
 }
