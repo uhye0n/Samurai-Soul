@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class PlayerReady : PlayerBehaviour
 {
+    private int lowerBodyLayerIndex = 1;
+
     public PlayerReady(Player player) : base(player)
     {
 
@@ -12,6 +14,7 @@ public class PlayerReady : PlayerBehaviour
     {
         base.Enter();
         player.an.SetBool("isReady", true);
+        player.an.SetLayerWeight(lowerBodyLayerIndex, 0.75f);
     }
 
     public override void CheckInput()
@@ -34,7 +37,7 @@ public class PlayerReady : PlayerBehaviour
         {
             playerCombat.currentTarget = playerCombat.GetClosestEnemy();
             playerCombat.LookAtTarget(playerCombat.currentTarget);
-
+            
             if (playerCombat.AttackCheck())
             {
                 Function.SetBehaviour(player, new PlayerAttack(player));
@@ -53,5 +56,6 @@ public class PlayerReady : PlayerBehaviour
     {
         base.Exit();
         player.an.SetBool("isReady", false);
+        player.an.SetLayerWeight(lowerBodyLayerIndex, 0);
     }
 }

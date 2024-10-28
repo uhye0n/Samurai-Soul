@@ -12,7 +12,6 @@ public class PlayerBattle : PlayerBehaviour
     {
         base.Enter();
         player.an.SetBool("isFighting", true);
-        Debug.Log("PlayerBattle On");
     }
 
     public override void CheckInput()
@@ -36,11 +35,7 @@ public class PlayerBattle : PlayerBehaviour
             playerCombat.currentTarget = playerCombat.GetClosestEnemy();
             playerCombat.LookAtTarget(playerCombat.currentTarget);
 
-            if (Input.GetMouseButtonDown(0)) 
-            {
-                playerCombat.SwitchTarget();
-            }
-            else if (playerCombat.ReadyCheck())
+            if (playerCombat.ReadyCheck())
             {
                 Function.SetBehaviour(player, new PlayerReady(player));
             }
@@ -58,6 +53,5 @@ public class PlayerBattle : PlayerBehaviour
     {
         base.Exit();
         player.an.SetBool("isFighting", false);
-        Debug.Log("PlayerBattle Off");
     }
 }

@@ -22,7 +22,10 @@ public class PlayerMove
 
     public void Rotation()
     {
-        Quaternion targetRotation = Quaternion.LookRotation(moveVector);
-        player.transform.rotation = Quaternion.RotateTowards(player.transform.rotation, targetRotation, 1000 * Time.deltaTime);
+        if (moveVector != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(moveVector);
+            player.transform.rotation = Quaternion.RotateTowards(player.transform.rotation, targetRotation, 1000 * Time.deltaTime);
+        }
     }
 }

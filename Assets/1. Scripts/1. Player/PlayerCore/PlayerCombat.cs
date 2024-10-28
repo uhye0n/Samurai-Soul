@@ -11,6 +11,7 @@ public class PlayerCombat
     public Transform currentTarget;
     public List<Transform> detectedEnemies = new List<Transform>();
     public int currentTargetIndex = 0;
+    public bool wasAttacking = false;
 
     public void Initialize(Player player)
     {
@@ -58,13 +59,6 @@ public class PlayerCombat
         }
     }
 
-    public void SwitchTarget()
-    {
-        currentTargetIndex = (currentTargetIndex + 1) % detectedEnemies.Count;
-        currentTarget = detectedEnemies[currentTargetIndex];
-        LookAtTarget(currentTarget);
-    }
-
     public void UpdateMovementAnimation()
     {
         if (currentTarget == null) return;
@@ -107,7 +101,7 @@ public class PlayerCombat
 
         float angle = Vector3.Angle(targetDirection, playerMovementDirection);
 
-        if (angle < 60f && playerMovementDirection.magnitude > 0.1f)
+        if (angle < 30f && playerMovementDirection.magnitude > 0.1f)
         {
             return true;
         }
@@ -121,7 +115,7 @@ public class PlayerCombat
 
         float distanceToTarget = Vector3.Distance(player.transform.position, currentTarget.position);
 
-        if (distanceToTarget > 2.5f)
+        if (distanceToTarget > 1.5f)
         {
             Vector3 targetDirection = (currentTarget.position - player.transform.position).normalized;
             player.transform.position += speed * Time.deltaTime * targetDirection;

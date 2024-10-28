@@ -58,5 +58,6 @@ public class PlayerAttack : PlayerBehaviour
     {
         base.Exit();
         player.an.SetBool("isAttacking", false);
+        playerCombat.wasAttacking = true;
     }
 }
