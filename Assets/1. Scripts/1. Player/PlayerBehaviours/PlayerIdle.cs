@@ -19,17 +19,17 @@ public class PlayerIdle : PlayerBehaviour
 
     public override void CheckState()
     {
+        base.CheckState();
+        
         player.an.SetFloat("MoveSpeed", 0f);
 
-        base.CheckState();
-
-        if (playerMove.horizontalAxis != 0 || playerMove.verticalAxis != 0)
+        if (playerCombat.detectedEnemies.Count > 0)
+        {
+            Function.SetBehaviour(player, new PlayerBattle(player));
+        }
+        else if (playerMove.horizontalAxis != 0 || playerMove.verticalAxis != 0)
         {
             Function.SetBehaviour(player, new PlayerWalk(player));
-        }
-        else if (Input.GetKeyDown(KeyCode.Space))
-        {
-            Function.SetBehaviour(player, new PlayerCombat(player));
         }
     }
 

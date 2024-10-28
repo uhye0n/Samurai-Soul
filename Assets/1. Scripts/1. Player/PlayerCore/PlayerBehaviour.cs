@@ -5,19 +5,19 @@ using UnityEngine;
 public class PlayerBehaviour
 {
     protected Player player;
-    protected readonly string playerAnimation;
     protected PlayerInput playerInput;
     protected PlayerMove playerMove;
     protected PlayerStats playerStats;
+    protected PlayerCombat playerCombat;
 
 
     public PlayerBehaviour(Player player)
     {
         this.player = player;
-        playerAnimation = GetType().Name;
         playerInput = player.playerInput;
         playerMove = player.playerMove;
         playerStats = player.playerStats;
+        playerCombat = player.playerCombat;
     }
 
     public virtual void Enter()
@@ -28,11 +28,12 @@ public class PlayerBehaviour
     public virtual void CheckInput()
     {
         playerInput.TouchInput();
+        
     }
 
     public virtual void CheckState()
     {
-
+        playerCombat.DetectEnemies();
     }
 
     public virtual void Perform()

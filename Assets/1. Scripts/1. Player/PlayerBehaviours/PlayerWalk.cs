@@ -19,9 +19,15 @@ public class PlayerWalk : PlayerBehaviour
 
     public override void CheckState()
     {
+        base.CheckState();
+        
         player.an.SetFloat("MoveSpeed", player.playerMove.moveVector.magnitude);
 
-        if (playerMove.horizontalAxis == 0 && playerMove.verticalAxis == 0)
+        if (playerCombat.detectedEnemies.Count > 0)
+        {
+            Function.SetBehaviour(player, new PlayerBattle(player));
+        }
+        else if (playerMove.horizontalAxis == 0 && playerMove.verticalAxis == 0)
         {
             Function.SetBehaviour(player, new PlayerIdle(player));
         }
@@ -31,7 +37,7 @@ public class PlayerWalk : PlayerBehaviour
     {
         base.Perform();
         playerMove.Rotation();
-        playerMove.GroundMove();
+        playerMove.GroundMove(playerStats.runSpeed);
     }
 
     public override void Exit()

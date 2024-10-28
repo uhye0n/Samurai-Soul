@@ -13,6 +13,7 @@ public class Player : MonoBehaviour
     public PlayerInput playerInput;
     public PlayerMove playerMove;
     public PlayerStats playerStats;
+    public PlayerCombat playerCombat;
     public PlayerBehaviour playerBehaviour;
     public VariableJoystick variableJoystick;
 
@@ -23,11 +24,17 @@ public class Player : MonoBehaviour
         cc = GetComponent<CapsuleCollider>();
         an = GetComponent<Animator>();
 
+        playerInput = new PlayerInput();
+        playerInput.Initialize(this);
+
         playerMove = new PlayerMove();
         playerMove.Initialize(this);
 
-        playerInput = new PlayerInput();
-        playerInput.Initialize(this);
+        playerCombat = new PlayerCombat();
+        playerCombat.Initialize(this);
+
+        playerStats = new PlayerStats();
+        playerStats.Initialize(this);
     }
 
     void Start()

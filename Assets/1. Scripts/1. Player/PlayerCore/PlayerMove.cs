@@ -5,7 +5,6 @@ public class PlayerMove
 {
     private Player player;
 
-    public float speed = 5f;
     public float horizontalAxis;
     public float verticalAxis;
     public Vector3 moveVector;
@@ -15,7 +14,7 @@ public class PlayerMove
         this.player = player;
     }
 
-    public void GroundMove()
+    public void GroundMove(float speed)
     {
         moveVector = new Vector3(horizontalAxis, 0, verticalAxis).normalized;
         player.transform.position += speed * Time.deltaTime * moveVector;
@@ -25,10 +24,5 @@ public class PlayerMove
     {
         Quaternion targetRotation = Quaternion.LookRotation(moveVector);
         player.transform.rotation = Quaternion.RotateTowards(player.transform.rotation, targetRotation, 1000 * Time.deltaTime);
-    }
-
-    public void LookEnemy()
-    {
-        
     }
 }
