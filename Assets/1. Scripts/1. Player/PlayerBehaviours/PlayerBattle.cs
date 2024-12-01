@@ -11,7 +11,7 @@ public class PlayerBattle : PlayerBehaviour
     public override void Enter()
     {
         base.Enter();
-        player.an.SetBool("isFighting", true);
+        player.an.SetBool("inBattle", true);
     }
 
     public override void CheckInput()
@@ -37,7 +37,7 @@ public class PlayerBattle : PlayerBehaviour
 
             if (playerCombat.ReadyCheck())
             {
-                Function.SetBehaviour(player, new PlayerReady(player));
+                Function.SetBehaviour(player, new PlayerSheath(player));
             }
         }
     }
@@ -52,6 +52,6 @@ public class PlayerBattle : PlayerBehaviour
     public override void Exit()
     {
         base.Exit();
-        player.an.SetBool("isFighting", false);
+        player.an.SetBool("inBattle", false);
     }
 }

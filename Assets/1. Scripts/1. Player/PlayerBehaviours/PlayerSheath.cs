@@ -1,11 +1,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerReady : PlayerBehaviour
+public class PlayerSheath : PlayerBehaviour
 {
     private int lowerBodyLayerIndex = 1;
+    private bool canAttack = true;
+    private bool attackDone = true;
+    private Coroutine readyCoroutine;
 
-    public PlayerReady(Player player) : base(player)
+    public PlayerSheath(Player player) : base(player)
     {
 
     }
@@ -13,8 +16,18 @@ public class PlayerReady : PlayerBehaviour
     public override void Enter()
     {
         base.Enter();
-        player.an.SetBool("isReady", true);
+
+        if (playerCombat.comboStack % 3 == 0)
+        {
+            Function.SetBehaviour(player, new PlayerDraw(player));
+        }
+
+        player.an.SetBool("inSheath", true);
         player.an.SetLayerWeight(lowerBodyLayerIndex, 0.75f);
+        readyCoroutine = player.StartCoroutine(Function.DelayedAction(0.5f, "None",
+                () => {},
+                () => {canAttack = true;},
+                () => {canAttack = false; attackDone = false;}));
     }
 
     public override void CheckInput()
@@ -38,9 +51,10 @@ public class PlayerReady : PlayerBehaviour
             playerCombat.currentTarget = playerCombat.GetClosestEnemy();
             playerCombat.LookAtTarget(playerCombat.currentTarget);
             
-            if (playerCombat.AttackCheck())
+            if (playerCombat.AttackCheck() && canAttack && !attackDone)
             {
-                Function.SetBehaviour(player, new PlayerAttack(player));
+                attackDone = true;
+                Function.SetBehaviour(player, new PlayerDraw(player));
             }
         }
     }
@@ -55,7 +69,7 @@ public class PlayerReady : PlayerBehaviour
     public override void Exit()
     {
         base.Exit();
-        player.an.SetBool("isReady", false);
+        player.an.SetBool("inSheath", false);
         player.an.SetLayerWeight(lowerBodyLayerIndex, 0);
     }
 }

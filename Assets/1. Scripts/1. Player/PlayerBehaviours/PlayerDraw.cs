@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerAttack : PlayerBehaviour
+public class PlayerDraw : PlayerBehaviour
 {
     private Coroutine attackCoroutine;
     private bool isAttacking = false;
@@ -9,7 +9,7 @@ public class PlayerAttack : PlayerBehaviour
     private float currentTime = 0f;
     private float attackTime = 0.3f;
 
-    public PlayerAttack(Player player) : base(player)
+    public PlayerDraw(Player player) : base(player)
     {
 
     }
@@ -17,7 +17,7 @@ public class PlayerAttack : PlayerBehaviour
     public override void Enter()
     {
         base.Enter();
-        player.an.SetBool("isAttacking", true);
+        player.an.SetBool("inDraw", true);
         attackCoroutine = player.StartCoroutine(Function.DelayedAction(1f, "None",
                 () => {},
                 () => {isAttacking = false;},
@@ -41,6 +41,7 @@ public class PlayerAttack : PlayerBehaviour
     public override void Perform()
     {
         base.Perform();
+
         if (isAttacking && isAttackMoving && currentTime < attackTime)
         {
             playerCombat.AttackMove(12.5f);
@@ -51,13 +52,13 @@ public class PlayerAttack : PlayerBehaviour
             isAttackMoving = false;
             currentTime = 0f;
         }
-        
     }
 
     public override void Exit()
     {
         base.Exit();
-        player.an.SetBool("isAttacking", false);
+        player.an.SetBool("inDraw", false);
         playerCombat.wasAttacking = true;
+        playerCombat.comboStack += 1;
     }
 }

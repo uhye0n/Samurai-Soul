@@ -15,6 +15,7 @@ public class Player : MonoBehaviour
     public PlayerStats playerStats;
     public PlayerCombat playerCombat;
     public PlayerBehaviour playerBehaviour;
+    public PlayerCommands playerCommands;
     public VariableJoystick variableJoystick;
 
 // MonoBehaviour 상속 메서드
@@ -35,6 +36,9 @@ public class Player : MonoBehaviour
 
         playerStats = new PlayerStats();
         playerStats.Initialize(this);
+
+        playerCommands = new PlayerCommands();
+        playerCommands.Initialize(this);
     }
 
     void Start()

@@ -12,6 +12,7 @@ public class PlayerCombat
     public List<Transform> detectedEnemies = new List<Transform>();
     public int currentTargetIndex = 0;
     public bool wasAttacking = false;
+    public int comboStack = 0;
 
     public void Initialize(Player player)
     {
@@ -121,4 +122,13 @@ public class PlayerCombat
             player.transform.position += speed * Time.deltaTime * targetDirection;
         }
     }
+
+    public void Attack(float power)
+    {
+        if (currentTarget == null) return;
+
+        
+    }
+
+    
 }

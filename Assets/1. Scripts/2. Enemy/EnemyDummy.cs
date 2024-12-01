@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class EnemyDummy : MonoBehaviour
 {
+    public Animator an;
     
     void Start()
     {
@@ -17,6 +18,6 @@ public class EnemyDummy : MonoBehaviour
 
     void TakeDamage()
     {
-
+        an.SetTrigger("TakeDamage");
     }
 }
