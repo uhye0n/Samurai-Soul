@@ -58,7 +58,7 @@ public class PlayerDraw : PlayerBehaviour
     {
         base.Exit();
         player.an.SetBool("inDraw", false);
-        playerCombat.wasAttacking = true;
         playerCombat.comboStack += 1;
+        Debug.Log("콤보 : " + playerCombat.comboStack);
     }
 }

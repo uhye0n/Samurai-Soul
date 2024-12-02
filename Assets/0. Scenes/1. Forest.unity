@@ -2380,6 +2380,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 287405f6a93c93248b2ebe145d754e9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  an: {fileID: 0}
 --- !u!1001 &255258879
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8590,13 +8591,13 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 1025570272137904468, guid: ffa267eb71168044a9f14927b7bb890b, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1321343762}
-    - targetCorrespondingSourceObject: {fileID: 1025570272137904468, guid: ffa267eb71168044a9f14927b7bb890b, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 1321343761}
     - targetCorrespondingSourceObject: {fileID: 1025570272137904468, guid: ffa267eb71168044a9f14927b7bb890b, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1321343760}
+    - targetCorrespondingSourceObject: {fileID: 1025570272137904468, guid: ffa267eb71168044a9f14927b7bb890b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1321343763}
   m_SourcePrefab: {fileID: 100100000, guid: ffa267eb71168044a9f14927b7bb890b, type: 3}
 --- !u!4 &1321343754 stripped
 Transform:
@@ -8678,7 +8679,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 80
   m_CollisionDetection: 0
---- !u!114 &1321343762
+--- !u!114 &1321343763
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8687,12 +8688,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1321343758}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ff994bfa44a12e745a2c4e869e9e121a, type: 3}
+  m_Script: {fileID: 11500000, guid: d6cccd4e72fe1704a893b9e8a613d9fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   rb: {fileID: 1321343761}
   cc: {fileID: 1321343760}
   an: {fileID: 1321343759}
+  lineRenderer: {fileID: 0}
   variableJoystick: {fileID: 2133071303}
 --- !u!1001 &1342028384
 PrefabInstance:
@@ -12870,6 +12872,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3881087803549984437, guid: ec536a7718376554185e4a856d5ae230, type: 3}
       propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3881087803549984438, guid: ec536a7718376554185e4a856d5ae230, type: 3}
+      propertyPath: m_RaycastTarget
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3881087803815115470, guid: ec536a7718376554185e4a856d5ae230, type: 3}

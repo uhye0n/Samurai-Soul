@@ -9,8 +9,6 @@ public class PlayerBehaviour
     protected PlayerMove playerMove;
     protected PlayerStats playerStats;
     protected PlayerCombat playerCombat;
-    protected PlayerCommands playerCommands;
-
 
     public PlayerBehaviour(Player player)
     {
@@ -19,12 +17,11 @@ public class PlayerBehaviour
         playerMove = player.playerMove;
         playerStats = player.playerStats;
         playerCombat = player.playerCombat;
-        playerCommands = player.playerCommands;
     }
 
     public virtual void Enter()
     {
-
+        Debug.Log($"[PlayerState] Changed to: {this.GetType().Name}");
     }
 
     public virtual void CheckInput()
