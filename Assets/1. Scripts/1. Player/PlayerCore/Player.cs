@@ -9,8 +9,13 @@ public class Player : MonoBehaviour
     public Rigidbody rb;
     public CapsuleCollider cc;
     public Animator an;
-    public Canvas drawCanvas;  // 추가
-    public RawImage drawImage;  // 추가
+
+    [Header("UI References")]
+    public Canvas drawCanvas;
+    public RawImage _drawImage;  // private 필드
+    
+    // public 속성 추가
+    public RawImage drawImage => _drawImage;
 
     // 플레이어 클래스 호출
     public VariableJoystick variableJoystick;
@@ -39,19 +44,34 @@ public class Player : MonoBehaviour
         playerStats = new PlayerStats();
         playerStats.Initialize(this);
 
-        // UI 컴포넌트 초기화
-        GameObject canvasObj = new GameObject("DrawCanvas");
-        drawCanvas = canvasObj.AddComponent<Canvas>();
-        drawCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        drawCanvas.sortingOrder = 100;
+        // 기존 자동 생성 코드 제거
+        // 대신 Inspector에서 직접 할당
 
-        GameObject imageObj = new GameObject("DrawImage");
-        imageObj.transform.SetParent(canvasObj.transform, false);
-        drawImage = imageObj.AddComponent<RawImage>();
-        drawImage.rectTransform.anchorMin = Vector2.zero;
-        drawImage.rectTransform.anchorMax = Vector2.one;
-        drawImage.rectTransform.sizeDelta = Vector2.zero;
-        drawImage.color = new Color(1, 1, 1, 0); // 투명 배경
+        // Canvas 정렬 순서 설정
+        if (drawCanvas != null)
+        {
+            drawCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            drawCanvas.pixelPerfect = false;
+            drawCanvas.overrideSorting = true;  // 부모 캔버스의 정렬 순서를 무시
+            drawCanvas.sortingOrder = 1;  // 기본 UI보다 위에 표시
+
+            // RawImage 설정
+            if (_drawImage != null)
+            {
+                _drawImage.rectTransform.anchorMin = Vector2.zero;
+                _drawImage.rectTransform.anchorMax = Vector2.one;
+                _drawImage.rectTransform.offsetMin = Vector2.zero;
+                _drawImage.rectTransform.offsetMax = Vector2.zero;
+                _drawImage.color = new Color(1, 1, 1, 0); // 알파값을 0으로 설정하여 투명하게
+                _drawImage.raycastTarget = false; // 레이캐스트 비활성화
+
+                // 발광 효과를 위한 Material 적용
+                Material glowMaterial = new Material(Shader.Find("UI/GlowEffect"));
+                glowMaterial.SetColor("_GlowColor", Color.white);
+                glowMaterial.SetFloat("_GlowIntensity", 0.5f); // 발광 강도 조절
+                _drawImage.material = glowMaterial;
+            }
+        }
     }
 
     public void Start()

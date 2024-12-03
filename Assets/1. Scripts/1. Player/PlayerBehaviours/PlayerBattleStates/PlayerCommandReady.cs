@@ -10,6 +10,9 @@ public class PlayerCommandReady : PlayerSkill
     private List<Vector2> drawPoints = new List<Vector2>();
     private Texture2D drawTexture;
     private bool isDrawing;
+    private readonly Color lineColor = new Color(0f, 0.5f, 1f, 0.8f); // 선 색상
+    private const int LINE_THICKNESS = 3; // 선 두께
+    private const float FADE_SPEED = 0.5f; // 선이 사라지는 속도
 
     public PlayerCommandReady(Player player) : base(player)
     {
@@ -18,35 +21,42 @@ public class PlayerCommandReady : PlayerSkill
 
     private void InitializeDrawing()
     {
-        drawTexture = new Texture2D(Screen.width, Screen.height);
+        drawTexture = new Texture2D(Screen.width, Screen.height, TextureFormat.RGBA32, false);
         drawTexture.filterMode = FilterMode.Bilinear;
-        ClearDrawing();
         player.drawImage.texture = drawTexture;
+        ClearDrawing();
     }
 
     private void ClearDrawing()
     {
-        Color[] pixels = new Color[Screen.width * Screen.height];
+        Color clearColor = new Color(0, 0, 0, 0); // 투명한 색상
+        Color[] pixels = new Color[drawTexture.width * drawTexture.height];
         for (int i = 0; i < pixels.Length; i++)
-            pixels[i] = Color.clear;
+            pixels[i] = clearColor;
         drawTexture.SetPixels(pixels);
         drawTexture.Apply();
     }
 
     public void UpdateLine(Vector2 screenPos)
     {
+        if (!isDrawing)
+        {
+            isDrawing = true;
+            ClearDrawing();
+        }
+
         if (drawPoints.Count > 0)
         {
             Vector2 lastPos = drawPoints[drawPoints.Count - 1];
-            DrawLine(lastPos, screenPos, new Color(0f, 0.5f, 1f, 1f));
+            DrawLine(lastPos, screenPos, new Color(0f, 0.5f, 1f, 1f)); // 선 색상 (알파값 1)
         }
         drawPoints.Add(screenPos);
     }
 
     private void DrawLine(Vector2 start, Vector2 end, Color color)
     {
-        int steps = (int)Vector2.Distance(start, end);
-        for (int i = 0; i < steps; i++)
+        int steps = Mathf.CeilToInt(Vector2.Distance(start, end));
+        for (int i = 0; i <= steps; i++)
         {
             float t = i / (float)steps;
             Vector2 pixel = Vector2.Lerp(start, end, t);
@@ -57,10 +67,27 @@ public class PlayerCommandReady : PlayerSkill
 
     private void DrawPixel(int x, int y, Color color)
     {
-        for(int i=-2; i<=2; i++)
-            for(int j=-2; j<=2; j++)
-                if(x+i >= 0 && x+i < drawTexture.width && y+j >= 0 && y+j < drawTexture.height)
-                    drawTexture.SetPixel(x+i, y+j, color);
+        // 원형 브러쉬로 픽셀 그리기
+        for (int i = -LINE_THICKNESS; i <= LINE_THICKNESS; i++)
+        {
+            for (int j = -LINE_THICKNESS; j <= LINE_THICKNESS; j++)
+            {
+                int dx = x + i;
+                int dy = y + j;
+                if (dx >= 0 && dx < drawTexture.width && dy >= 0 && dy < drawTexture.height)
+                {
+                    float distance = Mathf.Sqrt(i * i + j * j);
+                    if (distance <= LINE_THICKNESS)
+                    {
+                        // 발광 효과를 위해 투명도 조절
+                        float alpha = 1.0f - (distance / LINE_THICKNESS);
+                        Color pixelColor = Color.white; // 흰색으로 설정
+                        pixelColor.a = alpha;
+                        drawTexture.SetPixel(dx, dy, pixelColor);
+                    }
+                }
+            }
+        }
     }
 
     public override void Enter()
@@ -74,6 +101,12 @@ public class PlayerCommandReady : PlayerSkill
         player.drawImage.gameObject.SetActive(true);
         ClearDrawing();
         drawPoints.Clear();
+        isDrawing = false;
+        player.drawImage.color = new Color(1, 1, 1, 1); // 알파값을 1로 변경
+        if (player.drawCanvas != null)
+        {
+            player.drawCanvas.sortingOrder = 5;  // 임시로 드로잉 캔버스를 최상단으로
+        }
     }
 
     public override void CheckInput()
@@ -115,7 +148,7 @@ public class PlayerCommandReady : PlayerSkill
             }
             else
             {
-                // 패턴 인식 실패시 초기화
+                // 패턴 인식 실패시 ��기화
                 Function.SetBehaviour(player, new PlayerBattle(player));
             }
             
@@ -146,6 +179,23 @@ public class PlayerCommandReady : PlayerSkill
         if (commandReadyCoroutine != null)
             player.StopCoroutine(commandReadyCoroutine);
         linePositions.Clear();
+        player.drawImage.gameObject.SetActive(false);
+        player.StartCoroutine(FadeOutLine());
+        if (player.drawCanvas != null)
+        {
+            player.drawCanvas.sortingOrder = 1;  // 원래 정렬 순서로 복구
+        }
+    }
+
+    private IEnumerator<object> FadeOutLine()
+    {
+        float alpha = 1f;
+        while (alpha > 0)
+        {
+            alpha -= FADE_SPEED * Time.deltaTime;
+            player.drawImage.color = new Color(1, 1, 1, alpha);
+            yield return null;
+        }
         player.drawImage.gameObject.SetActive(false);
     }
 

@@ -79,19 +79,27 @@ public class PlayerInput
 
     private void StartTouch(Vector2 touchPos)
     {
+        Debug.Log($"Touch Started at: {touchPos}"); // 디버그 로그 추가
         lastTouchPosition = touchPos;
         ClearInputPattern();
-        (player.playerBehaviour as PlayerCommandReady)?.UpdateLine(touchPos);
+        if (player.playerBehaviour is PlayerCommandReady commandReady)
+        {
+            commandReady.UpdateLine(touchPos);
+        }
     }
 
     private void MoveTouch(Vector2 touchPos)
     {
-        if (Vector2.Distance(touchPos, lastTouchPosition) > 10f)
+        if (Vector2.Distance(touchPos, lastTouchPosition) > 5f) // 거리 임계값 줄임
         {
+            Debug.Log($"Touch Moved to: {touchPos}"); // 디버그 로그 추가
             Vector2 direction = (touchPos - lastTouchPosition).normalized;
             inputPattern.Add(direction);
             lastTouchPosition = touchPos;
-            (player.playerBehaviour as PlayerCommandReady)?.UpdateLine(touchPos);
+            if (player.playerBehaviour is PlayerCommandReady commandReady)
+            {
+                commandReady.UpdateLine(touchPos);
+            }
         }
     }
 
