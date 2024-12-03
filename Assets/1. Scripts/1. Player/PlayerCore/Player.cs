@@ -68,7 +68,7 @@ public class Player : MonoBehaviour
                 // 발광 효과를 위한 Material 적용
                 Material glowMaterial = new Material(Shader.Find("UI/GlowEffect"));
                 glowMaterial.SetColor("_GlowColor", Color.white);
-                glowMaterial.SetFloat("_GlowIntensity", 0.5f); // 발광 강도 조절
+                glowMaterial.SetFloat("_GlowIntensity", 1.0f); // 발광 강도를 높임
                 _drawImage.material = glowMaterial;
             }
         }
