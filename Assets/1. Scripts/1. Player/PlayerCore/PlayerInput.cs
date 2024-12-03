@@ -7,10 +7,10 @@ public class PlayerInput
 {
     private Player player;
     private List<Vector2> inputPattern = new List<Vector2>();
-    private float patternRecordInterval = 0.1f; // 0.1초마다 위치 기록
-    private float lastRecordTime = 0f;
     private bool isCommandMode = false;
     private Vector2 lastTouchPosition;
+    private float minMoveDistance = 20f; // 최소 이동 거리 임계값
+    private Vector2 startPosition; // 시작 위치 저장
 
     public void Initialize(Player player)
     {
@@ -79,27 +79,21 @@ public class PlayerInput
 
     private void StartTouch(Vector2 touchPos)
     {
-        Debug.Log($"Touch Started at: {touchPos}"); // 디버그 로그 추가
         lastTouchPosition = touchPos;
+        startPosition = touchPos;
         ClearInputPattern();
-        if (player.playerBehaviour is PlayerCommandReady commandReady)
-        {
-            commandReady.UpdateLine(touchPos);
-        }
+        (player.playerBehaviour as PlayerCommandReady)?.UpdateLine(touchPos);
     }
 
     private void MoveTouch(Vector2 touchPos)
     {
-        if (Vector2.Distance(touchPos, lastTouchPosition) > 5f) // 거리 임계값 줄임
+        if (Vector2.Distance(touchPos, lastTouchPosition) > minMoveDistance)
         {
-            Debug.Log($"Touch Moved to: {touchPos}"); // 디버그 로그 추가
             Vector2 direction = (touchPos - lastTouchPosition).normalized;
-            inputPattern.Add(direction);
+            Vector2 relativePos = touchPos - startPosition; // 시작점 기준 상대 위치
+            inputPattern.Add(new Vector2(relativePos.x, relativePos.y));
             lastTouchPosition = touchPos;
-            if (player.playerBehaviour is PlayerCommandReady commandReady)
-            {
-                commandReady.UpdateLine(touchPos);
-            }
+            (player.playerBehaviour as PlayerCommandReady)?.UpdateLine(touchPos);
         }
     }
 

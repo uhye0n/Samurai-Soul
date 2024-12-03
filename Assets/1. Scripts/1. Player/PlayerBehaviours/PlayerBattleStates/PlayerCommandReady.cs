@@ -68,46 +68,50 @@ public class PlayerCommandReady : PlayerSkill
     public override void CheckInput()
     {
         base.CheckInput();
-        
+
         if (!canCommand) return;
-        
+
         List<Vector2> pattern = player.playerInput.GetInputPattern();
-        
+
         if (pattern.Count == 0) return;
-        
-        // 터치가 끝났을 때 패턴 검사 (마지막 입력이 Vector2.zero)
+
         if (pattern.Count > 5 && pattern[pattern.Count - 1] == Vector2.zero)
         {
-            // 마지막 zero 입력 제거
             pattern.RemoveAt(pattern.Count - 1);
-            
+            bool patternRecognized = true;
+
             if (IsCircularPattern(pattern))
             {
                 Function.SetBehaviour(player, new PlayerHorizontalSlash(player));
-            }
-            else if (IsTrianglePattern(pattern))
-            {
-                // 첫 입력의 y값으로 방향 판단
-                bool isUpsideDown = pattern[0].y < 0;
-                if (isUpsideDown)
-                    Function.SetBehaviour(player, new PlayerThrust(player));
-                else
-                    Function.SetBehaviour(player, new PlayerThrustSlash(player));
             }
             else if (IsDiagonalSlashPattern(pattern))
             {
                 Function.SetBehaviour(player, new PlayerDiagonalSlash(player));
             }
+            else if (IsTrianglePattern(pattern))
+            {
+                Function.SetBehaviour(player, new PlayerThrust(player));
+            }
             else if (IsHorizontalDiagonalSlashPattern(pattern))
             {
                 Function.SetBehaviour(player, new PlayerHorizontalDiagonalSlash(player));
             }
+            else if (IsThrustSlashPattern(pattern))
+            {
+                Function.SetBehaviour(player, new PlayerThrustSlash(player));
+            }
             else
             {
-                // 패턴 인식 실패시 초기화
+                patternRecognized = false;
                 Function.SetBehaviour(player, new PlayerBattle(player));
             }
-            
+
+            if (patternRecognized)
+            {
+                canCommand = false;
+                player.playerInput.SetCommandMode(false);
+            }
+
             player.playerInput.ClearInputPattern();
         }
     }
@@ -140,34 +144,7 @@ public class PlayerCommandReady : PlayerSkill
         {
             player.drawCanvas.sortingOrder = 1;  // 원래 정렬 순서로 복구
         }
-    }
-
-    private bool IsDiagonalSlashPattern(List<Vector2> pattern)
-    {
-        if (pattern.Count < 6) return false;
-        
-        Vector2 startDirection = pattern[0];
-        Vector2 endDirection = pattern[pattern.Count - 1];
-        float totalAngle = Vector2.SignedAngle(startDirection, endDirection);
-        
-        return Mathf.Abs(totalAngle) >= 150f && Mathf.Abs(totalAngle) <= 210f;
-    }
-
-    private bool IsHorizontalDiagonalSlashPattern(List<Vector2> pattern)
-    {
-        if (pattern.Count < 8) return false;
-        
-        float totalAngle = 0f;
-        for (int i = 1; i < pattern.Count; i++)
-        {
-            Vector2 v1 = pattern[i - 1];
-            Vector2 v2 = pattern[i];
-            if (v1.magnitude > 0.1f && v2.magnitude > 0.1f)
-            {
-                totalAngle += Vector2.SignedAngle(v1, v2);
-            }
-        }
-        
-        return Mathf.Abs(totalAngle) >= 330f;
+        // 상태 전환 시 조이스틱 입력이 바로 적용되도록 설정
+        player.variableJoystick.gameObject.SetActive(true);
     }
 }
