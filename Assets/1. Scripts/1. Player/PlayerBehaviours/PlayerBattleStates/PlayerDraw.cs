@@ -44,7 +44,7 @@ public class PlayerDraw : PlayerBehaviour
 
         if (isAttacking && isAttackMoving && currentTime < attackTime)
         {
-            playerCombat.AttackMove(12.5f);
+            playerCombat.AttackMove(7f);
             currentTime += Time.deltaTime;
         }
         else if (isAttacking && isAttackMoving && currentTime >= attackTime)

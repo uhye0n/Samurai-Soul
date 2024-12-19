@@ -103,7 +103,7 @@ public class PlayerCommandReady : PlayerSkill
             else
             {
                 patternRecognized = false;
-                Function.SetBehaviour(player, new PlayerBattle(player));
+                Function.SetBehaviour(player, new PlayerSheath(player));
             }
 
             if (patternRecognized)
