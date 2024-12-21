@@ -21,13 +21,15 @@ public class PlayerSheath : PlayerBehaviour
         {
             Function.SetBehaviour(player, new PlayerCommandReady(player));
         }
-
-        player.an.SetBool("inSheath", true);
-        player.an.SetLayerWeight(lowerBodyLayerIndex, 0.75f);
-        readyCoroutine = player.StartCoroutine(Function.DelayedAction(0.5f, "None",
-                () => {},
-                () => {canAttack = true;},
-                () => {canAttack = false; attackDone = false;}));
+        else
+        {
+            player.an.SetBool("inSheath", true);
+            player.an.SetLayerWeight(lowerBodyLayerIndex, 0.75f);
+            readyCoroutine = player.StartCoroutine(Function.DelayedAction(0.5f, "None",
+                    () => {},
+                    () => {canAttack = true;},
+                    () => {canAttack = false; attackDone = false;}));
+        }
     }
 
     public override void CheckInput()

@@ -26,8 +26,13 @@ public class PlayerCommandReady : PlayerSkill
 
         if (!canCommand) return;
 
+        if (playerCombat.detectedEnemies.Count <= 0)
+        {
+            Function.SetBehaviour(player, new PlayerIdle(player));
+        }
+
         // 제한 시간 체크
-        if (Time.time - patternStartTime > patternTimeout)
+        if (playerCombat.detectedEnemies.Count > 0 && Time.time - patternStartTime > patternTimeout)
         {
             Function.SetBehaviour(player, new PlayerSheath(player));
             return;
@@ -73,7 +78,7 @@ public class PlayerCommandReady : PlayerSkill
     public override void CheckState()
     {
         base.CheckState();
-        if (!canCommand)
+        if (!canCommand && playerCombat.detectedEnemies.Count <= 0)
         {
             Function.SetBehaviour(player, new PlayerBattle(player));
         }
