@@ -63,6 +63,24 @@ public class PlayerSkill : PlayerBehaviour
     }
 
     // 회전 움직임 감지
+    private float CalculateRotationAngle(List<Vector2> points, Vector2 center)
+    {
+        if (points.Count < 2) return 0f;
+        
+        float totalAngle = 0f;
+        Vector2 prevVector = (points[0] - center).normalized;
+
+        for (int i = 1; i < points.Count; i++)
+        {
+            Vector2 currentVector = (points[i] - center).normalized;
+            float angle = Vector2.SignedAngle(prevVector, currentVector);
+            totalAngle += angle;
+            prevVector = currentVector;
+        }
+
+        return totalAngle;
+    }
+
     protected float GetRotationAngle(List<Vector2> points, Vector2 center)
     {
         float totalAngle = 0f;
@@ -79,89 +97,73 @@ public class PlayerSkill : PlayerBehaviour
     {
         if (pattern.Count < 5) return false;
 
-        // 적의 방향 확인
-        Vector3 enemyDirection = Vector3.zero;
-        if (player.playerCombat.currentTarget != null)
-        {
-            enemyDirection = (player.playerCombat.currentTarget.position - player.transform.position).normalized;
-        }
-
-        // 시작점이 적의 반대 방향인지 확인
-        Vector2 firstInput = pattern[0].normalized;
-        Vector3 firstInputWorld = new Vector3(firstInput.x, 0, firstInput.y);
-        bool isValidStart = enemyDirection == Vector3.zero || Vector3.Angle(-enemyDirection, firstInputWorld) < 45f;
-
-        if (!isValidStart) return false;
-
-        // 나머지 원형 패턴 체크 로직
+        // 패턴의 중심점 계산
         Vector2 center = pattern.Aggregate(Vector2.zero, (acc, p) => acc + p) / pattern.Count;
-        float endDistance = Vector2.Distance(pattern[pattern.Count - 1], pattern[0]);
-        bool returnsToStart = endDistance < Screen.height * 0.3f;
+        
+        // 중심점으로부터의 평균 거리와 표준편차 계산
+        float avgRadius = pattern.Average(p => Vector2.Distance(p, center));
+        
+        // 반지름 변화를 표준편차로 계산
+        float variance = pattern.Average(p => Mathf.Pow(Vector2.Distance(p, center) - avgRadius, 2));
+        float standardDeviation = Mathf.Sqrt(variance);
+        float normalizedDeviation = standardDeviation / avgRadius;  // 반지름 대비 표준편차
+        
+        // 원형 패턴의 조건 수정
+        bool isRadiusConsistent = normalizedDeviation < 0.7f;  // 70%까지 허용
+        float totalAngle = CalculateRotationAngle(pattern, center);
+        bool hasFullRotation = Mathf.Abs(totalAngle) >= 270f;
 
-        float totalAngle = 0f;
-        Vector2 prevPoint = pattern[0];
-        Vector2 prevDirection = Vector2.zero;
+        bool isValid = isRadiusConsistent && hasFullRotation;
 
-        for (int i = 1; i < pattern.Count; i++)
-        {
-            Vector2 currentPoint = pattern[i];
-            Vector2 currentDirection = (currentPoint - prevPoint).normalized;
+        // 디버그 정보 개선
+        Debug.Log($"원형 패턴 검사: {(isValid ? "성공" : "실패")}\n" +
+                 $"시작점: ({pattern[0].x:F2}, {pattern[0].y:F2})\n" +
+                 $"현재점: ({pattern[pattern.Count-1].x:F2}, {pattern[pattern.Count-1].y:F2})\n" +
+                 $"중심점: ({center.x:F2}, {center.y:F2})\n" +
+                 $"평균 반지름: {avgRadius:F2}\n" +
+                 $"반지름 편차: {normalizedDeviation*100:F1}% (임계값: 70%)\n" +
+                 $"회전 각도: {totalAngle:F1}° (임계값: 270°)\n" +
+                 $"포인트 수: {pattern.Count}\n" +
+                 (isValid ? "패턴 인식 성공" : $"실패 원인: {(isRadiusConsistent ? "" : "반지름 불일치, ")}{(hasFullRotation ? "" : "회전 각도 부족")}"));
 
-            if (prevDirection != Vector2.zero)
-            {
-                float angle = Vector2.SignedAngle(prevDirection, currentDirection);
-                totalAngle += angle;
-            }
+        if (!isValid) playerCombat.comboStack = 0;
 
-            prevPoint = currentPoint;
-            prevDirection = currentDirection;
-        }
-
-        return Mathf.Abs(totalAngle) >= 180f && returnsToStart;
+        return isValid;
     }
 
     protected virtual bool IsTrianglePattern(List<Vector2> pattern)
     {
-        if (pattern.Count < 6) return false;
+        if (pattern.Count < 4) return false;
 
-        // 적의 방향 확인
-        Vector3 enemyDirection = Vector3.zero;
-        if (player.playerCombat.currentTarget != null)
-        {
-            enemyDirection = (player.playerCombat.currentTarget.position - player.transform.position).normalized;
-        }
-
-        // 시작점이 적의 반대 방향인지 확인
-        Vector2 firstInput = pattern[0].normalized;
-        Vector3 firstInputWorld = new Vector3(firstInput.x, 0, firstInput.y);
-        bool isValidStart = enemyDirection == Vector3.zero || Vector3.Angle(-enemyDirection, firstInputWorld) < 60f;
-
-        if (!isValidStart) return false;
-
-        // 방향 전환 체크
-        int sharpTurns = 0;
-        float angleThreshold = 30f;
+        List<Vector2> vertices = new List<Vector2>();
+        float angleThreshold = 60f; // 꼭짓점 판정을 위한 각도 임계값
         
-        for (int i = 2; i < pattern.Count - 2; i++)
+        // 꼭짓점 찾기
+        for (int i = 1; i < pattern.Count - 1; i++)
         {
-            Vector2 v1 = (pattern[i] - pattern[i-2]).normalized;
-            Vector2 v2 = (pattern[i+2] - pattern[i]).normalized;
-            float angle = Vector2.Angle(v1, v2);
+            Vector2 prev = (pattern[i] - pattern[i - 1]).normalized;
+            Vector2 next = (pattern[i + 1] - pattern[i]).normalized;
+            float angle = Vector2.Angle(prev, next);
             
             if (angle > angleThreshold)
             {
-                sharpTurns++;
-                i += 2;
+                vertices.Add(pattern[i]);
             }
         }
 
-        // 기본 조건 체크
-        float endDistance = Vector2.Distance(pattern[pattern.Count - 1], pattern[0]);
-        bool returnsToStart = endDistance < Screen.height * 0.3f;
-        
-        Debug.Log($"Sharp Turns: {sharpTurns}, Returns to Start: {returnsToStart}");
+        // 시작점과 끝점이 가까운지 확인
+        float endDistance = Vector2.Distance(pattern[0], pattern[pattern.Count - 1]);
+        bool isClosedShape = endDistance < Screen.height * 0.2f;
 
-        // sharpTurns가 2 이상이면 삼각형으로 인식
-        return sharpTurns >= 2 && returnsToStart;
+        // 역삼각형 조건: 정확히 2개의 꼭짓점과 닫힌 형태
+        bool isValid = vertices.Count == 2 && isClosedShape;
+
+        if (!isValid)
+        {
+            Debug.Log($"역삼각형 패턴 실패: 꼭짓점 수={vertices.Count}, 닫힘={isClosedShape}");
+            playerCombat.comboStack = 0; // 실패시 콤보 초기화
+        }
+
+        return isValid;
     }
 }
