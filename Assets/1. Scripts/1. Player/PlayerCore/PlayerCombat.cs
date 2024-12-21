@@ -13,6 +13,7 @@ public class PlayerCombat
     public int currentTargetIndex = 0;
     public bool alreadyAttacked = false;
     public int attackDamage = 1;
+    public int skillDamage = 2;
     public float attackRange = 3f;
     public bool isAttacking = false;
     public bool isAttackMoving = false;
@@ -171,6 +172,8 @@ public class PlayerCombat
         // 적 탐지 상태 업데이트
         bool hasEnemies = detectedEnemies.Count > 0;
         player.an.SetBool("EnemyDetected", hasEnemies);
+        bool comboOver3 = _comboStack >= 3;
+        player.an.SetBool("ComboOver3", comboOver3);
 
         if (!hasEnemies && _comboStack > 0)
         {

@@ -129,7 +129,7 @@ public class EnemyRabbit : MonoBehaviour, IDamageable
         animator.SetTrigger("Die");
         rb.isKinematic = true;
         OnDeath?.Invoke();  // 죽음 이벤트 발생
-        Destroy(gameObject, 2f);
+        Destroy(gameObject, 1f);
     }
 
     // Animation Event Methods

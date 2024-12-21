@@ -73,7 +73,7 @@ public class PlayerThrust : PlayerSkill
                     var damageable = col.GetComponent<IDamageable>();
                     if (damageable != null)
                     {
-                        damageable.TakeDamage(player.playerCombat.attackDamage);
+                        damageable.TakeDamage(player.playerCombat.skillDamage);
                         hitAny = true;
                         Debug.Log($"Hit enemy: {col.gameObject.name}");
                     }
