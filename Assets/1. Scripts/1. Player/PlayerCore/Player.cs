@@ -14,6 +14,10 @@ public class Player : MonoBehaviour
     public Canvas drawCanvas;
     public RawImage _drawImage;
 
+    [Header("Skill Prefabs")]
+    public GameObject slashEffectPrefab;
+    public GameObject thrustEffectPrefab;
+
     // 플레이어 클래스 호출
     public VariableJoystick variableJoystick;
     public PlayerInput playerInput;

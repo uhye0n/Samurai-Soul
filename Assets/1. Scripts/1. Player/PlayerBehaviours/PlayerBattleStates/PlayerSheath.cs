@@ -17,7 +17,7 @@ public class PlayerSheath : PlayerBehaviour
     {
         base.Enter();
 
-        if (playerCombat.comboStack % 3 == 0 && playerCombat.comboStack > 0)
+        if (!playerCombat.alreadyAttacked && playerCombat.comboStack % 3 == 0 && playerCombat.comboStack > 0)
         {
             Function.SetBehaviour(player, new PlayerCommandReady(player));
         }
@@ -71,5 +71,9 @@ public class PlayerSheath : PlayerBehaviour
         base.Exit();
         player.an.SetBool("inSheath", false);
         player.an.SetLayerWeight(lowerBodyLayerIndex, 0);
+        if (playerCombat.alreadyAttacked)
+        {
+            playerCombat.alreadyAttacked = false;
+        }
     }
 }

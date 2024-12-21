@@ -12,6 +12,7 @@ public class PlayerCombat
     public List<Transform> detectedEnemies = new List<Transform>();
     public int currentTargetIndex = 0;
     public int comboStack = 0;
+    public bool alreadyAttacked = false;
 
     public void Initialize(Player player)
     {

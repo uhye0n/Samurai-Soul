@@ -1,8 +1,11 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerHorizontalSlash : PlayerSkill
 {
+    private int lowerBodyLayerIndex = 1;
+
     public PlayerHorizontalSlash(Player player) : base(player)
     {
 
@@ -11,6 +14,9 @@ public class PlayerHorizontalSlash : PlayerSkill
     public override void Enter()
     {
         base.Enter();
+        player.an.SetTrigger("HorizontalSlash");
+        player.an.SetLayerWeight(lowerBodyLayerIndex, 0);
+        player.StartCoroutine(DelayedEffect());
     }
 
     public override void CheckInput()
@@ -31,5 +37,44 @@ public class PlayerHorizontalSlash : PlayerSkill
     public override void Exit()
     {
         base.Exit();
+        player.an.SetLayerWeight(lowerBodyLayerIndex, 0);
+        playerCombat.alreadyAttacked = true;
+    }
+
+    private IEnumerator DelayedEffect()
+    {
+        yield return new WaitForSeconds(0.25f);
+        Transform enemy = player.playerCombat.GetClosestEnemy();
+        if (player.slashEffectPrefab != null)
+        {
+            GameObject effect = null;
+            if (enemy != null)
+            {
+                Vector3 direction = (enemy.position - player.transform.position).normalized;
+                direction.y = 0f;
+                Quaternion effectRotation = Quaternion.LookRotation(direction) * Quaternion.Euler(180f, 0f, 0f);
+                effect = Object.Instantiate(player.slashEffectPrefab, player.transform.position, effectRotation);
+            }
+            else
+            {
+                effect = Object.Instantiate(player.slashEffectPrefab, player.transform.position, Quaternion.identity);
+            }
+            
+            // 이펙트의 ParticleSystem 완료 대기
+            if (effect != null)
+            {
+                ParticleSystem ps = effect.GetComponent<ParticleSystem>();
+                if (ps != null)
+                {
+                    yield return new WaitForSeconds(ps.main.duration);
+                }
+                else
+                {
+                    yield return new WaitForSeconds(1f); // 기본 대기 시간
+                }
+            }
+            
+            Function.SetBehaviour(player, new PlayerSheath(player));
+        }
     }
 }

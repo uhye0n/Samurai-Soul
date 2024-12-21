@@ -8,9 +8,10 @@ public class PlayerInput
     private Player player;
     private List<Vector2> inputPattern = new List<Vector2>();
     private bool isCommandMode = false;
-    private Vector2 lastTouchPosition;
-    private float minMoveDistance = 20f; // 최소 이동 거리 임계값
-    private Vector2 startPosition; // 시작 위치 저장
+    private Vector2 lastJoystickInput;
+    private float minMoveDistance = 0.3f; // 조이스틱 입력 최소 거리
+    private float inputDelay = 0.1f; // 입력 기록 간격
+    private float lastInputTime = 0f;
 
     public void Initialize(Player player)
     {
@@ -36,69 +37,20 @@ public class PlayerInput
         }
         else
         {
-            // 터치 또는 마우스 드래그 입력
-#if UNITY_EDITOR
-            // 에디터에서 마우스 입력 사용
-            if (Input.GetMouseButtonDown(0))
+            // 패턴 인식을 위한 조이스틱 입력 기록
+            Vector2 currentInput = new Vector2(player.variableJoystick.Horizontal, player.variableJoystick.Vertical);
+            
+            if (currentInput.magnitude > minMoveDistance && Time.time - lastInputTime > inputDelay)
             {
-                Vector2 touchPos = Input.mousePosition;
-                StartTouch(touchPos);
+                inputPattern.Add(currentInput);
+                lastInputTime = Time.time;
+                lastJoystickInput = currentInput;
             }
-            else if (Input.GetMouseButton(0))
+            else if (currentInput.magnitude < 0.1f && lastJoystickInput.magnitude > 0.1f)
             {
-                Vector2 touchPos = Input.mousePosition;
-                MoveTouch(touchPos);
+                // 조이스틱을 놓았을 때 패턴 종료 표시
+                inputPattern.Add(Vector2.zero);
             }
-            else if (Input.GetMouseButtonUp(0))
-            {
-                EndTouch();
-            }
-#else
-            // 실제 기기에서 터치 입력 사용
-            if (Input.touchCount > 0)
-            {
-                Touch touch = Input.GetTouch(0);
-                Vector2 touchPos = touch.position;
-
-                if (touch.phase == TouchPhase.Began)
-                {
-                    StartTouch(touchPos);
-                }
-                else if (touch.phase == TouchPhase.Moved)
-                {
-                    MoveTouch(touchPos);
-                }
-                else if (touch.phase == TouchPhase.Ended)
-                {
-                    EndTouch();
-                }
-            }
-#endif
         }
-    }
-
-    private void StartTouch(Vector2 touchPos)
-    {
-        lastTouchPosition = touchPos;
-        startPosition = touchPos;
-        ClearInputPattern();
-        (player.playerBehaviour as PlayerCommandReady)?.UpdateLine(touchPos);
-    }
-
-    private void MoveTouch(Vector2 touchPos)
-    {
-        if (Vector2.Distance(touchPos, lastTouchPosition) > minMoveDistance)
-        {
-            Vector2 direction = (touchPos - lastTouchPosition).normalized;
-            Vector2 relativePos = touchPos - startPosition; // 시작점 기준 상대 위치
-            inputPattern.Add(new Vector2(relativePos.x, relativePos.y));
-            lastTouchPosition = touchPos;
-            (player.playerBehaviour as PlayerCommandReady)?.UpdateLine(touchPos);
-        }
-    }
-
-    private void EndTouch()
-    {
-        inputPattern.Add(Vector2.zero); // 패턴 종료 표시
     }
 }
