@@ -77,14 +77,21 @@ public class PlayerHorizontalSlash : PlayerSkill
                 effect = Object.Instantiate(player.slashEffectPrefab, playerPosition, effectRotation);
 
                 // 범위 내 모든 적에게 데미지
+                bool hitAny = false;
                 foreach (Collider target in validTargets)
                 {
                     var damageable = target.GetComponent<IDamageable>();
                     if (damageable != null)
                     {
                         damageable.TakeDamage(player.playerCombat.attackDamage);
+                        hitAny = true;
                         Debug.Log($"Slash hit: {target.gameObject.name}");
                     }
+                }
+
+                if (hitAny)
+                {
+                    player.playerCombat.RegisterHit();
                 }
             }
             else

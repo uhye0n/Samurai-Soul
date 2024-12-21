@@ -67,14 +67,21 @@ public class PlayerThrust : PlayerSkill
                 effect = Object.Instantiate(player.thrustEffectPrefab, spawnPosition, effectRotation);
 
                 // 범위 내의 모든 적에게 데미지
+                bool hitAny = false;
                 foreach (Collider col in hitColliders)
                 {
                     var damageable = col.GetComponent<IDamageable>();
                     if (damageable != null)
                     {
                         damageable.TakeDamage(player.playerCombat.attackDamage);
+                        hitAny = true;
                         Debug.Log($"Hit enemy: {col.gameObject.name}");
                     }
+                }
+
+                if (hitAny)
+                {
+                    player.playerCombat.RegisterHit();
                 }
             }
             else

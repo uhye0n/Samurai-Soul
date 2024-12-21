@@ -31,6 +31,9 @@ public class PlayerCombat
         }
     }
 
+    private float lastHitTime = 0f;
+    private float comboResetTime = 3f; // 3초 동안 타격이 없으면 콤보 초기화
+
     public void Initialize(Player player)
     {
         this.player = player;
@@ -45,6 +48,9 @@ public class PlayerCombat
         {
             detectedEnemies.Add(enemy.transform);
         }
+
+        // 적 탐지 상태를 애니메이터에 반영
+        player.an.SetBool("EnemyDetected", detectedEnemies.Count > 0);
     }
 
     public Transform GetClosestEnemy()
@@ -158,5 +164,35 @@ public class PlayerCombat
                 }
             }
         }
+    }
+
+    public void Update()
+    {
+        // 적 탐지 상태 업데이트
+        bool hasEnemies = detectedEnemies.Count > 0;
+        player.an.SetBool("EnemyDetected", hasEnemies);
+
+        if (!hasEnemies && _comboStack > 0)
+        {
+            ResetCombo();
+        }
+        
+        // 마지막 타격 이후 일정 시간이 지나면 콤보 초기화
+        if (_comboStack > 0 && Time.time - lastHitTime > comboResetTime)
+        {
+            ResetCombo();
+        }
+    }
+
+    public void RegisterHit()
+    {
+        comboStack++;
+        lastHitTime = Time.time;
+    }
+
+    public void ResetCombo()
+    {
+        comboStack = 0;
+        Debug.Log("Combo Reset");
     }
 }
