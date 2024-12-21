@@ -43,7 +43,7 @@ public class PlayerHorizontalSlash : PlayerSkill
 
     private IEnumerator DelayedEffect()
     {
-        yield return new WaitForSeconds(0.25f);
+        yield return new WaitForSeconds(0.2f);
         Transform enemy = player.playerCombat.GetClosestEnemy();
         if (player.slashEffectPrefab != null)
         {
@@ -58,20 +58,6 @@ public class PlayerHorizontalSlash : PlayerSkill
             else
             {
                 effect = Object.Instantiate(player.slashEffectPrefab, player.transform.position, Quaternion.identity);
-            }
-            
-            // 이펙트의 ParticleSystem 완료 대기
-            if (effect != null)
-            {
-                ParticleSystem ps = effect.GetComponent<ParticleSystem>();
-                if (ps != null)
-                {
-                    yield return new WaitForSeconds(ps.main.duration);
-                }
-                else
-                {
-                    yield return new WaitForSeconds(1f); // 기본 대기 시간
-                }
             }
             
             Function.SetBehaviour(player, new PlayerSheath(player));

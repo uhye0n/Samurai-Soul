@@ -67,14 +67,25 @@ public class PlayerSkill : PlayerBehaviour
     {
         if (pattern.Count < 5) return false;
 
-        // 중심점 계산
-        Vector2 center = pattern.Aggregate(Vector2.zero, (acc, p) => acc + p) / pattern.Count;
+        // 적의 방향 확인
+        Vector3 enemyDirection = Vector3.zero;
+        if (player.playerCombat.currentTarget != null)
+        {
+            enemyDirection = (player.playerCombat.currentTarget.position - player.transform.position).normalized;
+        }
 
-        // 시작점과 끝점이 가까운지 확인
+        // 시작점이 적의 반대 방향인지 확인
+        Vector2 firstInput = pattern[0].normalized;
+        Vector3 firstInputWorld = new Vector3(firstInput.x, 0, firstInput.y);
+        bool isValidStart = enemyDirection == Vector3.zero || Vector3.Angle(-enemyDirection, firstInputWorld) < 45f;
+
+        if (!isValidStart) return false;
+
+        // 나머지 원형 패턴 체크 로직
+        Vector2 center = pattern.Aggregate(Vector2.zero, (acc, p) => acc + p) / pattern.Count;
         float endDistance = Vector2.Distance(pattern[pattern.Count - 1], pattern[0]);
         bool returnsToStart = endDistance < Screen.height * 0.3f;
 
-        // 회전 방향 확인
         float totalAngle = 0f;
         Vector2 prevPoint = pattern[0];
         Vector2 prevDirection = Vector2.zero;
@@ -94,10 +105,6 @@ public class PlayerSkill : PlayerBehaviour
             prevDirection = currentDirection;
         }
 
-        // 디버그 정보
-        Debug.Log($"Circle Check - Total Angle: {totalAngle}, End Distance: {endDistance}");
-
-        // 회전각이 일정 이상이고 시작점으로 돌아왔는지 확인
         return Mathf.Abs(totalAngle) >= 180f && returnsToStart;
     }
 
@@ -105,9 +112,19 @@ public class PlayerSkill : PlayerBehaviour
     {
         if (pattern.Count < 8) return false;
 
-        // 시작점이 하단에 있는지 확인
-        float bottomThreshold = Screen.height * 0.3f;
-        if (pattern[0].y > bottomThreshold) return false;
+        // 적의 방향 확인
+        Vector3 enemyDirection = Vector3.zero;
+        if (player.playerCombat.currentTarget != null)
+        {
+            enemyDirection = (player.playerCombat.currentTarget.position - player.transform.position).normalized;
+        }
+
+        // 시작점이 적의 반대 방향인지 확인
+        Vector2 firstInput = pattern[0].normalized;
+        Vector3 firstInputWorld = new Vector3(firstInput.x, 0, firstInput.y);
+        bool isValidStart = enemyDirection == Vector3.zero || Vector3.Angle(-enemyDirection, firstInputWorld) < 45f;
+
+        if (!isValidStart) return false;
 
         // 급격한 방향 전환 횟수 체크
         int sharpTurns = 0;

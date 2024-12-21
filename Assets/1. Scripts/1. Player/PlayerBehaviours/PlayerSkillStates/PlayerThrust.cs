@@ -62,19 +62,6 @@ public class PlayerThrust : PlayerSkill
                 effect = Object.Instantiate(player.thrustEffectPrefab, spawnPosition, player.transform.rotation);
             }
             
-            if (effect != null)
-            {
-                ParticleSystem ps = effect.GetComponent<ParticleSystem>();
-                if (ps != null)
-                {
-                    yield return new WaitForSeconds(ps.main.duration);
-                }
-                else
-                {
-                    yield return new WaitForSeconds(1f);
-                }
-            }
-            
             Function.SetBehaviour(player, new PlayerSheath(player));
         }
     }
