@@ -62,6 +62,7 @@ public class PlayerThrust : PlayerSkill
                 effect = Object.Instantiate(player.thrustEffectPrefab, spawnPosition, player.transform.rotation);
             }
             
+            yield return new WaitForSeconds(0.75f);
             Function.SetBehaviour(player, new PlayerSheath(player));
         }
     }

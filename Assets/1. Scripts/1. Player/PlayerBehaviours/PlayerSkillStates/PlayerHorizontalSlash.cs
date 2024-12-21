@@ -60,6 +60,7 @@ public class PlayerHorizontalSlash : PlayerSkill
                 effect = Object.Instantiate(player.slashEffectPrefab, player.transform.position, Quaternion.identity);
             }
             
+            yield return new WaitForSeconds(0.8f);
             Function.SetBehaviour(player, new PlayerSheath(player));
         }
     }
