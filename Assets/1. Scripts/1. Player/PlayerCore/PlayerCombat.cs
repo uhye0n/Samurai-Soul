@@ -14,7 +14,9 @@ public class PlayerCombat
     public int comboStack = 0;
     public bool alreadyAttacked = false;
     public int attackDamage = 1;
-    public float attackRange = 3f; // 공격 범위 추가
+    public float attackRange = 5f; // 공격 범위 추가
+    public bool isAttacking = false;
+    public bool isAttackMoving = false;
 
     public void Initialize(Player player)
     {

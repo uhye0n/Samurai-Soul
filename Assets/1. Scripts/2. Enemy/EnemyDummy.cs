@@ -28,15 +28,12 @@ public class EnemyDummy : MonoBehaviour, IDamageable
         Debug.Log($"Dummy Hit! Damage: {damage}, Health: {currentHealth}/{maxHealth}");
     }
 
-    private void Update()
+    public void Update()
     {
         // 경직 상태 업데이트
         if (isStunned && Time.time >= stunEndTime)
         {
             isStunned = false;
         }
-
-        // 기본 상태에서는 Idle 애니메이션 재생
-        animator.SetBool("isWalking", false);
     }
 }

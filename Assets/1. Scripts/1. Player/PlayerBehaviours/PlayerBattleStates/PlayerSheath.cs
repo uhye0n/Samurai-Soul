@@ -17,7 +17,7 @@ public class PlayerSheath : PlayerBehaviour
     {
         base.Enter();
 
-        if (!playerCombat.alreadyAttacked && playerCombat.comboStack % 3 == 0 && playerCombat.comboStack > 0)
+        if (playerCombat.detectedEnemies.Count > 0 && !playerCombat.alreadyAttacked && playerCombat.comboStack % 3 == 0 && playerCombat.comboStack > 0)
         {
             Function.SetBehaviour(player, new PlayerCommandReady(player));
         }

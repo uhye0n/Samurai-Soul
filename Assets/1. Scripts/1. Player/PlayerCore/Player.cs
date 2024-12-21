@@ -14,7 +14,7 @@ public class Player : MonoBehaviour
     public GameObject slashEffectPrefab;
     public GameObject thrustEffectPrefab;
 
-    // 플레이어 클래스 호출
+    // 플레이어 클래스 호출 - public으로 모두 변경
     public VariableJoystick variableJoystick;
     public PlayerInput playerInput;
     public PlayerMove playerMove;
@@ -22,8 +22,10 @@ public class Player : MonoBehaviour
     public PlayerCombat playerCombat;
     public PlayerBehaviour playerBehaviour;
 
+    public bool isDead;  // 사망 상태 플래그 추가
+
     // MonoBehaviour 상속 메서드
-    public void Awake()
+    private void Awake()  // void 제거
     {
         rb = GetComponent<Rigidbody>();
         cc = GetComponent<CapsuleCollider>();
@@ -40,6 +42,10 @@ public class Player : MonoBehaviour
 
         playerStats = new PlayerStats();
         playerStats.Initialize(this);
+
+        isDead = false;  // 초기화
+
+        Debug.Log("Player initialized with stats");
     }
 
     public void Start()
@@ -49,12 +55,20 @@ public class Player : MonoBehaviour
 
     public void Update()
     {
+        if (isDead) return;  // isDead 사용
+        // 플레이어가 죽었으면 입력 처리하지 않음
+        if (playerStats.currentHealth <= 0) return;
+
         playerBehaviour?.CheckInput();
         playerBehaviour?.CheckState();
     }
 
     public void FixedUpdate()
     {
+        if (isDead) return;  // isDead 사용
+        // 플레이어가 죽었으면 움직임 처리하지 않음
+        if (playerStats.currentHealth <= 0) return;
+
         playerBehaviour?.Perform();
     }
 }

@@ -16,16 +16,24 @@ public class PlayerStats
     {
         this.player = player;
         currentHealth = maxHealth;
+        Debug.Log($"PlayerStats initialized. Health: {currentHealth}/{maxHealth}");
     }
 
     public void TakeDamage(int damage)
     {
-        currentHealth -= damage;
-        if (currentHealth <= 0)
+        if (!player.isDead || !player.playerCombat.isAttacking)
         {
-            currentHealth = 0;
-            // 사망 처리
-            Debug.Log("Player Dead");
+            currentHealth -= damage;
+            Debug.Log($"Player taking damage: {damage}. Current health: {currentHealth}/{maxHealth}");
+            player.an.SetTrigger("Hit");
+        
+            if (currentHealth <= 0)
+            {
+                currentHealth = 0;
+                player.isDead = true;  // 플레이어 사망 상태 설정
+                Debug.Log("Player Dead");
+                player.an.SetBool("Die",true);
+            }
         }
     }
 }

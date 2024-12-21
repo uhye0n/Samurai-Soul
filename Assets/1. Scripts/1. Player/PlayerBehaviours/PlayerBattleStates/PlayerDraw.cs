@@ -4,8 +4,6 @@ using UnityEngine;
 public class PlayerDraw : PlayerBehaviour
 {
     private Coroutine attackCoroutine;
-    private bool isAttacking = false;
-    private bool isAttackMoving = false;
     private float currentTime = 0f;
     private float attackTime = 0.3f;
 
@@ -20,10 +18,10 @@ public class PlayerDraw : PlayerBehaviour
         player.an.SetBool("inDraw", true);
         attackCoroutine = player.StartCoroutine(Function.DelayedAction(1f, "None",
                 () => {},
-                () => {isAttacking = false;},
+                () => {playerCombat.isAttacking = false;},
                 () => {
-                    isAttacking = true; 
-                    isAttackMoving = true;
+                    playerCombat.isAttacking = true; 
+                    playerCombat.isAttackMoving = true;
                     playerCombat.Attack(1f);  // 여기에 공격 추가
                 }));
     }
@@ -36,7 +34,7 @@ public class PlayerDraw : PlayerBehaviour
     public override void CheckState()
     {
         base.CheckState();
-        if (!isAttacking)
+        if (!playerCombat.isAttacking)
         {
             Function.SetBehaviour(player, new PlayerBattle(player));
         }
@@ -46,14 +44,14 @@ public class PlayerDraw : PlayerBehaviour
     {
         base.Perform();
 
-        if (isAttacking && isAttackMoving && currentTime < attackTime)
+        if (playerCombat.isAttacking && playerCombat.isAttackMoving && currentTime < attackTime)
         {
             playerCombat.AttackMove(5f);
             currentTime += Time.deltaTime;
         }
-        else if (isAttacking && isAttackMoving && currentTime >= attackTime)
+        else if (playerCombat.isAttacking && playerCombat.isAttackMoving && currentTime >= attackTime)
         {
-            isAttackMoving = false;
+            playerCombat.isAttackMoving = false;
             currentTime = 0f;
         }
     }
