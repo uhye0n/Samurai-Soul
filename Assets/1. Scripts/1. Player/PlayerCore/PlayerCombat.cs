@@ -33,7 +33,7 @@ public class PlayerCombat
     }
 
     private float lastHitTime = 0f;
-    private float comboResetTime = 3f; // 3초 동안 타격이 없으면 콤보 초기화
+    private float comboResetTime = 2.5f; // 2.5초 동안 타격이 없으면 콤보 초기화
 
     public void Initialize(Player player)
     {
