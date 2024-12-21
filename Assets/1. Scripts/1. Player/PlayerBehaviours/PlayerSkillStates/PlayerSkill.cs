@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PlayerSkill : PlayerBehaviour
 {
+    protected bool isSkillInvincible = false;
+
     public PlayerSkill(Player player) : base(player)
     {
 
@@ -12,6 +14,9 @@ public class PlayerSkill : PlayerBehaviour
     public override void Enter()
     {
         base.Enter();
+        // 스킬 시작 시 무적 상태 설정
+        isSkillInvincible = true;
+        player.playerStats.SetInvincible(true);
     }
 
     public override void CheckInput()
@@ -32,7 +37,14 @@ public class PlayerSkill : PlayerBehaviour
     public override void Exit()
     {
         base.Exit();
+        // 스킬 종료 시 무적 해제
+        if (isSkillInvincible)
+        {
+            isSkillInvincible = false;
+            player.playerStats.SetInvincible(false);
+        }
     }
+
 
     // 직선 움직임 감지
     protected bool IsLinearMovement(List<Vector2> points, float tolerance = 0.1f)

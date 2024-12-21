@@ -6,17 +6,30 @@ public class PlayerCombat
 {
     private Player player;
 
-    public float detectionRadius = 10f;
+    public float detectionRadius = 5f;
     public LayerMask enemyLayer = LayerMask.GetMask("Enemy");
     public Transform currentTarget;
     public List<Transform> detectedEnemies = new List<Transform>();
     public int currentTargetIndex = 0;
-    public int comboStack = 0;
     public bool alreadyAttacked = false;
     public int attackDamage = 1;
     public float attackRange = 3f;
     public bool isAttacking = false;
     public bool isAttackMoving = false;
+
+    public delegate void ComboChangedDelegate(int comboCount);
+    public event ComboChangedDelegate onComboChanged;
+
+    private int _comboStack = 0;
+    public int comboStack
+    {
+        get { return _comboStack; }
+        set
+        {
+            _comboStack = value;
+            onComboChanged?.Invoke(_comboStack);
+        }
+    }
 
     public void Initialize(Player player)
     {

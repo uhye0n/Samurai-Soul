@@ -19,33 +19,49 @@ public class PlayerStats
     public int currentHealth;
     public int maxTotalHealth = 10;
 
+    // 무적 시간 관련 변수
+    public float invincibilityDuration = 1f; // 무적 지속 시간
+    private float lastDamageTime;
+    private bool isSkillInvincible = false;
+    public bool isInvincible => Time.time < lastDamageTime + invincibilityDuration || isSkillInvincible;
+
     public void Initialize(Player player)
     {
         this.player = player;
         currentHealth = maxHealth;
         Instance = this;  // 싱글톤 인스턴스 설정
+        lastDamageTime = -invincibilityDuration; // 시작할 때는 무적이 아닌 상태로
         Debug.Log($"PlayerStats initialized. Health: {currentHealth}/{maxHealth}");
+    }
+
+    public void SetInvincible(bool invincible)
+    {
+        isSkillInvincible = invincible;
     }
 
     public void TakeDamage(int damage)
     {
-        if (!player.isDead && !player.playerCombat.isAttacking)
-        {
-            currentHealth -= damage;
-            Debug.Log($"Player taking damage: {damage}. Current health: {currentHealth}/{maxHealth}");
-            player.an.SetTrigger("Hit");
-        
-            if (currentHealth <= 0)
-            {
-                currentHealth = 0;
-                player.isDead = true;
-                Debug.Log("Player Dead");
-                player.an.SetBool("Die", true);
-            }
+        // 무적 상태이거나 죽은 상태, 또는 공격 중이면 데미지를 받지 않음
+        if (isInvincible || player.isDead || player.playerCombat.isAttacking)
+            return;
 
-            if (onHealthChangedCallback != null)
-                onHealthChangedCallback.Invoke();
+        lastDamageTime = Time.time; // 마지막 피격 시간 갱신
+        currentHealth -= damage;
+        Debug.Log($"Player taking damage: {damage}. Current health: {currentHealth}/{maxHealth}");
+        
+        player.an.SetTrigger("Hit");
+        player.playerCombat.comboStack = 0;
+    
+        if (currentHealth <= 0)
+        {
+            currentHealth = 0;
+            player.isDead = true;
+            Debug.Log("Player Dead");
+            player.an.SetBool("Die", true);
         }
+
+        if (onHealthChangedCallback != null)
+            onHealthChangedCallback.Invoke();
     }
 
     public void Heal(int amount)

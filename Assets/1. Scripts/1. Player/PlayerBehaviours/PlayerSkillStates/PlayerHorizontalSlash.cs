@@ -98,6 +98,9 @@ public class PlayerHorizontalSlash : PlayerSkill
             }
             
             yield return new WaitForSeconds(0.8f);
+            // 스킬 종료 전 무적 해제
+            isSkillInvincible = false;
+            player.playerStats.SetInvincible(false);
             Function.SetBehaviour(player, new PlayerSheath(player));
         }
     }

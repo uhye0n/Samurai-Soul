@@ -120,11 +120,15 @@ public class EnemyRabbit : MonoBehaviour, IDamageable
         }
     }
 
+    public delegate void DeathHandler();
+    public event DeathHandler OnDeath;
+
     private void Die()
     {
         isDead = true;
         animator.SetTrigger("Die");
         rb.isKinematic = true;
+        OnDeath?.Invoke();  // 죽음 이벤트 발생
         Destroy(gameObject, 2f);
     }
 
