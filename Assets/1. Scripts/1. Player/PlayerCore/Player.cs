@@ -56,8 +56,6 @@ public class Player : MonoBehaviour
     public void Update()
     {
         if (isDead) return;  // isDead 사용
-        // 플레이어가 죽었으면 입력 처리하지 않음
-        if (playerStats.currentHealth <= 0) return;
 
         playerBehaviour?.CheckInput();
         playerBehaviour?.CheckState();
@@ -66,9 +64,7 @@ public class Player : MonoBehaviour
     public void FixedUpdate()
     {
         if (isDead) return;  // isDead 사용
-        // 플레이어가 죽었으면 움직임 처리하지 않음
-        if (playerStats.currentHealth <= 0) return;
-
+        
         playerBehaviour?.Perform();
     }
 }
