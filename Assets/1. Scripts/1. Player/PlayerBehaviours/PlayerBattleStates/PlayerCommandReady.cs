@@ -37,9 +37,10 @@ public class PlayerCommandReady : PlayerSkill
 
         if (pattern.Count == 0) return;
 
+        // 패턴이 완료되었을 때 (마지막 입력이 Vector2.zero)
         if (pattern.Count > 3 && pattern[pattern.Count - 1] == Vector2.zero)
         {
-            pattern.RemoveAt(pattern.Count - 1);
+            pattern.RemoveAt(pattern.Count - 1); // 완료 표시 제거
             bool patternRecognized = true;
 
             if (IsTrianglePattern(pattern))

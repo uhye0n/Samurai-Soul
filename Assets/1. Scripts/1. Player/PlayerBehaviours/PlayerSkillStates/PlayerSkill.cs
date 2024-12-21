@@ -110,7 +110,7 @@ public class PlayerSkill : PlayerBehaviour
 
     protected virtual bool IsTrianglePattern(List<Vector2> pattern)
     {
-        if (pattern.Count < 8) return false;
+        if (pattern.Count < 6) return false;
 
         // 적의 방향 확인
         Vector3 enemyDirection = Vector3.zero;
@@ -122,38 +122,34 @@ public class PlayerSkill : PlayerBehaviour
         // 시작점이 적의 반대 방향인지 확인
         Vector2 firstInput = pattern[0].normalized;
         Vector3 firstInputWorld = new Vector3(firstInput.x, 0, firstInput.y);
-        bool isValidStart = enemyDirection == Vector3.zero || Vector3.Angle(-enemyDirection, firstInputWorld) < 45f;
+        bool isValidStart = enemyDirection == Vector3.zero || Vector3.Angle(-enemyDirection, firstInputWorld) < 60f;
 
         if (!isValidStart) return false;
 
-        // 급격한 방향 전환 횟수 체크
+        // 방향 전환 체크
         int sharpTurns = 0;
-        float angleThreshold = 45f; // 좀 더 관대한 각도
+        float angleThreshold = 30f;
         
-        for (int i = 3; i < pattern.Count - 3; i++)
+        for (int i = 2; i < pattern.Count - 2; i++)
         {
-            Vector2 v1 = (pattern[i] - pattern[i-3]).normalized;
-            Vector2 v2 = (pattern[i+3] - pattern[i]).normalized;
+            Vector2 v1 = (pattern[i] - pattern[i-2]).normalized;
+            Vector2 v2 = (pattern[i+2] - pattern[i]).normalized;
             float angle = Vector2.Angle(v1, v2);
             
             if (angle > angleThreshold)
             {
                 sharpTurns++;
-                i += 3; // 같은 코너를 중복 감지하지 않도록
+                i += 2;
             }
         }
 
-        // 대략적인 삼각형 모양 확인 (3번의 방향 전환)
-        bool hasThreeTurns = sharpTurns >= 2 && sharpTurns <= 4;
-
-        // 위쪽 꼭지점이 존재하는지 확인
-        float maxY = pattern.Max(p => p.y);
-        bool hasTopVertex = pattern.Any(p => p.y > (pattern[0].y + maxY) / 2);
-
-        // 시작점으로 돌아왔는지 확인
+        // 기본 조건 체크
         float endDistance = Vector2.Distance(pattern[pattern.Count - 1], pattern[0]);
-        bool returnsToStart = endDistance < Screen.height * 0.2f;
+        bool returnsToStart = endDistance < Screen.height * 0.3f;
+        
+        Debug.Log($"Sharp Turns: {sharpTurns}, Returns to Start: {returnsToStart}");
 
-        return hasThreeTurns && hasTopVertex && returnsToStart;
+        // sharpTurns가 2 이상이면 삼각형으로 인식
+        return sharpTurns >= 2 && returnsToStart;
     }
 }

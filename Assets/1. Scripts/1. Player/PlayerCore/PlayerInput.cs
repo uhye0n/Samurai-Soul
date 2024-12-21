@@ -12,6 +12,8 @@ public class PlayerInput
     private float minMoveDistance = 0.3f; // 조이스틱 입력 최소 거리
     private float inputDelay = 0.1f; // 입력 기록 간격
     private float lastInputTime = 0f;
+    private Vector2 patternStartPosition;
+    private float patternCompleteThreshold = 0.3f; // 시작 위치와의 거리 체크용 임계값
 
     public void Initialize(Player player)
     {
@@ -25,6 +27,10 @@ public class PlayerInput
     {
         isCommandMode = value;
         ClearInputPattern();
+        if (value)
+        {
+            patternStartPosition = new Vector2(player.variableJoystick.Horizontal, player.variableJoystick.Vertical);
+        }
     }
     
     public void TouchInput()
@@ -45,6 +51,12 @@ public class PlayerInput
                 inputPattern.Add(currentInput);
                 lastInputTime = Time.time;
                 lastJoystickInput = currentInput;
+
+                // 시작 위치로 돌아왔는지 체크
+                if (inputPattern.Count > 3 && Vector2.Distance(currentInput, patternStartPosition) < patternCompleteThreshold)
+                {
+                    inputPattern.Add(Vector2.zero); // 패턴 완료 표시
+                }
             }
             else if (currentInput.magnitude < 0.1f && lastJoystickInput.magnitude > 0.1f)
             {
