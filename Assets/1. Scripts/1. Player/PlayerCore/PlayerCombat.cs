@@ -13,6 +13,8 @@ public class PlayerCombat
     public int currentTargetIndex = 0;
     public int comboStack = 0;
     public bool alreadyAttacked = false;
+    public int attackDamage = 1;
+    public float attackRange = 3f; // 공격 범위 추가
 
     public void Initialize(Player player)
     {
@@ -127,8 +129,19 @@ public class PlayerCombat
     {
         if (currentTarget == null) return;
 
+        float distanceToTarget = Vector3.Distance(player.transform.position, currentTarget.position);
         
+        if (distanceToTarget <= attackRange)
+        {
+            GameObject targetObject = currentTarget.gameObject;
+            if (targetObject.CompareTag("Enemy"))
+            {
+                var damageable = targetObject.GetComponent<IDamageable>();
+                if (damageable != null)
+                {
+                    damageable.TakeDamage(attackDamage);
+                }
+            }
+        }
     }
-
-    
 }

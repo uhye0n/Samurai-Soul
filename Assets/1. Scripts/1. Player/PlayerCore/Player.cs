@@ -10,10 +10,6 @@ public class Player : MonoBehaviour
     public CapsuleCollider cc;
     public Animator an;
 
-    [Header("UI References")]
-    public Canvas drawCanvas;
-    public RawImage _drawImage;
-
     [Header("Skill Prefabs")]
     public GameObject slashEffectPrefab;
     public GameObject thrustEffectPrefab;
@@ -44,32 +40,6 @@ public class Player : MonoBehaviour
 
         playerStats = new PlayerStats();
         playerStats.Initialize(this);
-
-        // Canvas 정렬 순서 설정
-        if (drawCanvas != null)
-        {
-            drawCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            drawCanvas.pixelPerfect = false;
-            drawCanvas.overrideSorting = true;
-            drawCanvas.sortingOrder = 1;
-
-            // RawImage 설정
-            if (_drawImage != null)
-            {
-                _drawImage.rectTransform.anchorMin = Vector2.zero;
-                _drawImage.rectTransform.anchorMax = Vector2.one;
-                _drawImage.rectTransform.offsetMin = Vector2.zero;
-                _drawImage.rectTransform.offsetMax = Vector2.zero;
-                _drawImage.color = new Color(1, 1, 1, 0);
-                _drawImage.raycastTarget = false;
-
-                // 발광 효과를 위한 Material 적용
-                Material glowMaterial = new Material(Shader.Find("UI/GlowEffect"));
-                glowMaterial.SetColor("_GlowColor", Color.white);
-                glowMaterial.SetFloat("_GlowIntensity", 1.0f);
-                _drawImage.material = glowMaterial;
-            }
-        }
     }
 
     public void Start()

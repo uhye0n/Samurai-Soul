@@ -1,23 +1,42 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyDummy : MonoBehaviour
+public class EnemyDummy : MonoBehaviour, IDamageable
 {
-    public Animator an;
+    public Animator animator;
+    public Rigidbody rb;
     
-    void Start()
+    private int maxHealth = 999;
+    private int currentHealth;
+    private bool isStunned;
+    private float stunDuration = 0.5f;
+    private float stunEndTime;
+
+    private void Awake()
     {
-        
+        animator = GetComponent<Animator>();
+        rb = GetComponent<Rigidbody>();
+        currentHealth = maxHealth;
     }
 
-    void Update()
+    public void TakeDamage(int damage)
     {
+        // 체력은 감소하지 않고 경직만 적용
+        isStunned = true;
+        stunEndTime = Time.time + stunDuration;
+        animator.SetTrigger("Hit");
         
+        Debug.Log($"Dummy Hit! Damage: {damage}, Health: {currentHealth}/{maxHealth}");
     }
 
-    void TakeDamage()
+    private void Update()
     {
-        an.SetTrigger("TakeDamage");
+        // 경직 상태 업데이트
+        if (isStunned && Time.time >= stunEndTime)
+        {
+            isStunned = false;
+        }
+
+        // 기본 상태에서는 Idle 애니메이션 재생
+        animator.SetBool("isWalking", false);
     }
 }

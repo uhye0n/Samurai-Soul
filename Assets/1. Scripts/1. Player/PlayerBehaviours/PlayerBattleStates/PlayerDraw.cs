@@ -21,7 +21,11 @@ public class PlayerDraw : PlayerBehaviour
         attackCoroutine = player.StartCoroutine(Function.DelayedAction(1f, "None",
                 () => {},
                 () => {isAttacking = false;},
-                () => {isAttacking = true; isAttackMoving = true;}));
+                () => {
+                    isAttacking = true; 
+                    isAttackMoving = true;
+                    playerCombat.Attack(1f);  // 여기에 공격 추가
+                }));
     }
 
     public override void CheckInput()
