@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class WaveManager : MonoBehaviour
 {
@@ -103,9 +104,21 @@ public class WaveManager : MonoBehaviour
     private void HandleBossDeath()
     {
         Debug.Log("보스 처치! 게임 클리어!");
-        // 게임 클리어 처리
         waves[currentWaveIndex].isCompleted = true;
         currentWaveIndex++;
+        StartCoroutine(ShowBossClearScene());
+    }
+
+    private IEnumerator ShowBossClearScene()
+    {
+        Time.timeScale = 1f;
+        yield return new WaitForSeconds(2f);
+        LoadBossClearScene();
+    }
+
+    private void LoadBossClearScene()
+    {
+        SceneManager.LoadScene(3); // BossClearScene의 인덱스
     }
 
     private void SpawnEnemy(Vector3 position)

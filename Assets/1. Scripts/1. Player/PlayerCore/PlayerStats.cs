@@ -45,15 +45,12 @@ public class PlayerStats
 
     public void TakeDamage(int damage)
     {
-        // 무적 상태이거나 죽은 상태, 또는 공격 중이면 데미지를 받지 않음
         if (isInvincible || player.isDead || player.playerCombat.isAttacking)
             return;
 
-        lastDamageTime = Time.time; // 마지막 피격 시간 갱신
+        lastDamageTime = Time.time;
         currentHealth -= damage;
-        Debug.Log($"Player taking damage: {damage}. Current health: {currentHealth}/{maxHealth}");
         
-        // 깜빡임 효과 시작
         if (blinkCoroutine != null)
             player.StopCoroutine(blinkCoroutine);
         blinkCoroutine = player.StartCoroutine(BlinkEffect());
@@ -62,38 +59,64 @@ public class PlayerStats
     
         if (currentHealth <= 0)
         {
-            currentHealth = 0;
-            player.isDead = true;
-            Debug.Log("Player Dead");
-            player.an.SetBool("Die", true);
+            HandleDeath();
         }
 
-        if (onHealthChangedCallback != null)
-            onHealthChangedCallback.Invoke();
+        onHealthChangedCallback?.Invoke();
+    }
+
+    private void HandleDeath()
+    {
+        currentHealth = 0;
+        player.isDead = true;
+        onHealthChangedCallback?.Invoke();
+
+        // 죽음 애니메이션 재생
+        player.an.SetBool("Die", true);
+
+        // 2초 후에 DeathUI 표시
+        player.StartCoroutine(ShowDeathUIAfterDelay());
+    }
+
+    private IEnumerator ShowDeathUIAfterDelay()
+    {
+        yield return new WaitForSeconds(2f); // 죽음 애니메이션을 위한 대기 시간
+
+        DeathUI deathUI = Object.FindObjectOfType<DeathUI>();
+        if (deathUI != null)
+        {
+            deathUI.ShowDeathScreen();
+        }
     }
 
     private IEnumerator BlinkEffect()
     {
-        for (int i = 0; i < blinkCount; i++)
+        WaitForSeconds blinkWait = new WaitForSeconds(blinkDuration);
+        
+        for (int i = 0; i < blinkCount && !player.isDead; i++)
         {
-            // 모든 렌더러 비활성화
             foreach (var renderer in player.AllRenderers)
             {
                 if (renderer != null)
                     renderer.enabled = false;
             }
 
-            yield return new WaitForSeconds(blinkDuration);
+            yield return blinkWait;
 
-            // 모든 렌더러 활성화
             foreach (var renderer in player.AllRenderers)
             {
                 if (renderer != null)
                     renderer.enabled = true;
             }
 
-            yield return new WaitForSeconds(blinkDuration);
+            yield return blinkWait;
         }
+    }
+
+    private IEnumerator ResetTimeScale()
+    {
+        yield return new WaitForSeconds(2f);
+        Time.timeScale = 1f;
     }
 
     public void Heal(int amount)

@@ -15,6 +15,7 @@ public class PlayerCombat
     public int attackDamage = 1;
     public int skillDamage = 2;
     public float attackRange = 3f;
+    public float bossAttackRange = 5f;  // 보스 전용 공격 범위 추가
     public bool isAttacking = false;
     public bool isAttackMoving = false;
 
@@ -48,10 +49,13 @@ public class PlayerCombat
     public void DetectEnemies()
     {
         detectedEnemies.Clear();
+        Debug.Log($"[PlayerCombat] Detecting enemies with layer mask: {enemyLayer.value}");
         Collider[] enemiesInRange = Physics.OverlapSphere(player.transform.position, detectionRadius, enemyLayer);
+        Debug.Log($"[PlayerCombat] Found {enemiesInRange.Length} enemies in range");
 
         foreach (Collider enemy in enemiesInRange)
         {
+            Debug.Log($"[PlayerCombat] Found enemy: {enemy.name}, Layer: {enemy.gameObject.layer}");
             detectedEnemies.Add(enemy.transform);
         }
 
@@ -159,27 +163,49 @@ public class PlayerCombat
 
     public void Attack(float power)
     {
-        if (currentTarget == null) return;
+        if (currentTarget == null)
+        {
+            Debug.Log("[PlayerCombat] No target found");
+            return;
+        }
         
         attackHit = false;  // 공격 시작 시 적중 여부 초기화
         attackStartPosition = player.transform.position;
         attackDirection = (currentTarget.position - attackStartPosition).normalized;
         
+        // 보스인 경우 더 넓은 공격 범위 사용
+        float currentAttackRange = currentTarget.GetComponent<Boss>() != null ? bossAttackRange : attackRange;
         float distanceToTarget = Vector3.Distance(player.transform.position, currentTarget.position);
         
-        if (distanceToTarget <= attackRange)
+        Debug.Log($"[PlayerCombat] Distance to target: {distanceToTarget}, Attack Range: {currentAttackRange}, Is Boss: {currentTarget.GetComponent<Boss>() != null}");
+        
+        if (distanceToTarget <= currentAttackRange)
         {
             GameObject targetObject = currentTarget.gameObject;
+            Debug.Log($"[PlayerCombat] Target in range, checking for Enemy tag");
+            
             if (targetObject.CompareTag("Enemy"))
             {
                 var damageable = targetObject.GetComponent<IDamageable>();
+                Debug.Log($"[PlayerCombat] IDamageable component found: {damageable != null}");
+                
                 if (damageable != null)
                 {
+                    Debug.Log("[PlayerCombat] Attempting to deal damage");
                     damageable.TakeDamage(attackDamage);
                     attackHit = true;  // 공격이 적중했음을 표시
                 }
             }
+            else
+            {
+                Debug.Log($"[PlayerCombat] Target does not have Enemy tag. Current tag: {targetObject.tag}");
+            }
         }
+        else
+        {
+            Debug.Log("[PlayerCombat] Target out of range");
+        }
+        
         alreadyAttacked = true;
     }
 

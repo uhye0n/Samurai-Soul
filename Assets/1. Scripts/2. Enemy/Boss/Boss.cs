@@ -43,6 +43,7 @@ public class Boss : MonoBehaviour, IDamageable
         }
         defaultLayer = gameObject.layer;
         SetState(new BossInvulnerableState(this));
+        Debug.Log($"[Boss] 초기 체력: {currentHealth}/{maxHealth}");
     }
 
     private void Update()
@@ -60,18 +61,26 @@ public class Boss : MonoBehaviour, IDamageable
     public void SetInvulnerable(bool invulnerable)
     {
         isInvulnerable = invulnerable;
+        Debug.Log($"[Boss] 무적 상태 변경: {(invulnerable ? "무적" : "취약")}");
         // 필요한 경우 시각적 효과 추가
     }
 
     public void TakeDamage(int damage)
     {
-        if (isInvulnerable) return;
+        if (isInvulnerable)
+        {
+            Debug.Log("[Boss] 현재 무적 상태입니다!");
+            return;
+        }
 
+        Debug.Log("[Boss] 무적 상태가 아닙니다. 데미지를 받습니다.");
         currentHealth -= damage;
         animator?.SetTrigger("Hit");
+        Debug.Log($"[Boss] 데미지 {damage} 받음! 현재 체력: {currentHealth}/{maxHealth}");
 
         if (currentHealth <= 0)
         {
+            Debug.Log("[Boss] 사망!");
             Die();
         }
         else if (currentState is BossVulnerableState)
