@@ -18,6 +18,11 @@ public class WaveManager : MonoBehaviour
     [SerializeField] private List<Wave> waves = new List<Wave>();
     [SerializeField] private float waveCooldown = 5f; // 웨이브 사이 쿨타임
     
+    [Header("Boss Settings")]
+    [SerializeField] private GameObject bossPrefab;  // 보스 프리팹
+    [SerializeField] private Transform bossSpawnPoint;  // 보스 스폰 위치
+    private bool isBossWave = false;
+
     [Header("Current Status")]
     [SerializeField] private int currentWaveIndex = 0;
     [SerializeField] private int remainingEnemies = 0;
@@ -46,21 +51,61 @@ public class WaveManager : MonoBehaviour
         }
 
         Wave currentWave = waves[currentWaveIndex];
-        remainingEnemies = currentWave.enemyCount;
+        
+        // 마지막 웨이브인지 확인
+        isBossWave = (currentWaveIndex == waves.Count - 1);
 
-        // 웨이브 시작 시 이벤트 호출
-        onWaveChanged?.Invoke(currentWaveIndex + 1, currentWave.waveName);
-        onEnemyCountChanged?.Invoke(remainingEnemies, currentWave.enemyCount);
-
-        // 스폰 포인트들을 순회하면서 적 생성
-        for (int i = 0; i < currentWave.enemyCount; i++)
+        if (isBossWave)
         {
-            // 스폰 포인트 순환
-            Transform spawnPoint = currentWave.spawnPoints[i % currentWave.spawnPoints.Count];
+            StartBossWave(currentWave.waveName);
+        }
+        else
+        {
+            StartNormalWave(currentWave);
+        }
+    }
+
+    private void StartNormalWave(Wave wave)
+    {
+        remainingEnemies = wave.enemyCount;
+        onWaveChanged?.Invoke(currentWaveIndex + 1, wave.waveName);
+        onEnemyCountChanged?.Invoke(remainingEnemies, wave.enemyCount);
+
+        for (int i = 0; i < wave.enemyCount; i++)
+        {
+            Transform spawnPoint = wave.spawnPoints[i % wave.spawnPoints.Count];
             SpawnEnemy(spawnPoint.position);
         }
+    }
 
-        Debug.Log($"Wave {currentWave.waveName} 시작! 적 {remainingEnemies}마리 생성");
+    private void StartBossWave(string waveName)
+    {
+        if (bossPrefab == null || bossSpawnPoint == null)
+        {
+            Debug.LogError("Boss prefab or spawn point not set!");
+            return;
+        }
+
+        remainingEnemies = 1;
+        onWaveChanged?.Invoke(currentWaveIndex + 1, waveName);
+        onEnemyCountChanged?.Invoke(1, 1);
+
+        GameObject bossInstance = Instantiate(bossPrefab, bossSpawnPoint.position, bossSpawnPoint.rotation);
+        Boss bossComponent = bossInstance.GetComponent<Boss>();
+        if (bossComponent != null)
+        {
+            bossComponent.OnBossDeath += HandleBossDeath;
+        }
+
+        Debug.Log("보스 웨이브 시작!");
+    }
+
+    private void HandleBossDeath()
+    {
+        Debug.Log("보스 처치! 게임 클리어!");
+        // 게임 클리어 처리
+        waves[currentWaveIndex].isCompleted = true;
+        currentWaveIndex++;
     }
 
     private void SpawnEnemy(Vector3 position)

@@ -4,7 +4,7 @@ using System.Collections;
 public class Boss : MonoBehaviour, IDamageable
 {
     [Header("Stats")]
-    public int maxHealth = 30;
+    public int maxHealth = 15;
     private int currentHealth;
     public bool isInvulnerable { get; private set; }
     
@@ -24,6 +24,9 @@ public class Boss : MonoBehaviour, IDamageable
     private int defaultLayer;
     private const string IGNORE_COLLISION_LAYER = "Boss_NoCollision"; // 레이어 이름 변경
     private Rigidbody rb;
+
+    public delegate void BossDeathHandler();
+    public event BossDeathHandler OnBossDeath;
 
     private void Start()
     {
@@ -80,7 +83,7 @@ public class Boss : MonoBehaviour, IDamageable
     private void Die()
     {
         animator?.SetTrigger("Die");
-        // 죽음 처리 로직
+        OnBossDeath?.Invoke();
         Destroy(gameObject, 2f);
     }
 

@@ -32,7 +32,10 @@ public class ComboUI : MonoBehaviour
         }
         else
         {
-            // 콤보가 0이 되면 페이드아웃 시작
+            // 페이드아웃 시작 전에 오브젝트가 활성화되어 있는지 확인
+            if (!comboText.gameObject.activeSelf)
+                comboText.gameObject.SetActive(true);
+                
             StartCoroutine(FadeOutCombo());
         }
     }
@@ -40,12 +43,16 @@ public class ComboUI : MonoBehaviour
     private IEnumerator FadeOutCombo()
     {
         float elapsedTime = 0f;
+        canvasGroup.alpha = 1f;  // 시작할 때 알파값 초기화
+
         while (elapsedTime < fadeDuration)
         {
             elapsedTime += Time.deltaTime;
             canvasGroup.alpha = Mathf.Lerp(1f, 0f, elapsedTime / fadeDuration);
             yield return null;
         }
+
+        // 페이드아웃이 완료된 후에 비활성화
         comboText.gameObject.SetActive(false);
     }
 
