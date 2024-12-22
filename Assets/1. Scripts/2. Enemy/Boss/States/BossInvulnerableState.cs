@@ -4,18 +4,17 @@ using System.Collections;
 
 public class BossInvulnerableState : BossState
 {
-    private float nextAttackTime;
-    private float attackInterval = 1.5f;
-    private int currentPattern = 0;
-    private Vector3 mapCenter;
-    private float mapSize = 20f;
     private float patternDuration = 5f;    // 각 패턴의 지속 시간
-    private float warningDuration = 4f;    // 경고 지속 시간
     private float patternDelay = 1f;       // 패턴 간 딜레이
     private float currentPatternTimer;
+    private float nextPatternTime = 0f;  // 변수 위치 이동
     private int[] selectedPatterns;        // 이번 페이즈에서 사용할 패턴들
     private int currentPatternIndex = 0;
     private bool isExecutingPattern = false;
+    private Vector3 mapCenter;
+    private float mapSize = 20f;
+    private bool hasMovedToSafePosition = false;
+    private float moveSpeed = 10f;
 
     public BossInvulnerableState(Boss boss) : base(boss) 
     {
@@ -42,25 +41,43 @@ public class BossInvulnerableState : BossState
     {
         boss.SetInvulnerable(true);
         stateTimer = boss.invulnerablePhaseTime;
-        
-        // 맵 중앙을 기준으로 패턴 생성
         mapCenter = Vector3.zero;
-        
-        boss.transform.position = boss.safePosition;
-        Debug.Log($"Boss entered invulnerable state at position: {boss.transform.position}");
+        hasMovedToSafePosition = false;
+        isExecutingPattern = false;
+        boss.SetCollisionEnabled(false); // 콜라이더 비활성화 대신 충돌 비활성화
+        Debug.Log("Boss entering invulnerable state");
     }
 
     public override void Update()
     {
+        if (!hasMovedToSafePosition)
+        {
+            // 보스를 안전 위치로 이동
+            float step = moveSpeed * Time.deltaTime;
+            boss.transform.position = Vector3.MoveTowards(boss.transform.position, boss.safePosition, step);
+
+            // 목표 위치에 도달했는지 확인
+            if (Vector3.Distance(boss.transform.position, boss.safePosition) < 0.1f)
+            {
+                hasMovedToSafePosition = true;
+                boss.SetCollisionEnabled(true); // 콜라이더 활성화 대신 충돌 활성화
+                Debug.Log("Boss reached safe position");
+            }
+            return;
+        }
+
         stateTimer -= Time.deltaTime;
         
-        if (!isExecutingPattern)
+        // 안전 위치 도달 후 패턴 시작
+        if (!isExecutingPattern && hasMovedToSafePosition)
         {
             if (currentPatternIndex < selectedPatterns.Length)
             {
-                StartPattern(selectedPatterns[currentPatternIndex]);
                 isExecutingPattern = true;
                 currentPatternTimer = patternDuration;
+                nextPatternTime = Time.time + patternDuration;
+                StartPattern(selectedPatterns[currentPatternIndex]);
+                Debug.Log($"Starting pattern {currentPatternIndex}");
             }
         }
         else
@@ -70,10 +87,10 @@ public class BossInvulnerableState : BossState
             {
                 isExecutingPattern = false;
                 currentPatternIndex++;
-                // 패턴 간 딜레이 추가
                 if (currentPatternIndex < selectedPatterns.Length)
                 {
-                    boss.StartCoroutine(WaitForNextPattern());
+                    // 코루틴 대신 딜레이 타이머 사용
+                    nextPatternTime = Time.time + patternDelay;
                 }
             }
         }
@@ -84,14 +101,17 @@ public class BossInvulnerableState : BossState
         }
     }
 
-    private IEnumerator WaitForNextPattern()
+    // 코루틴 제거하고 타이머 로직으로 변경
+    private void DelayNextPattern()
     {
-        yield return new WaitForSeconds(patternDelay);
+        nextPatternTime = Time.time + patternDelay;
         isExecutingPattern = false;
     }
 
     private void StartPattern(int patternIndex)
     {
+        if (!isExecutingPattern) return;  // 실행 중이 아닐 때만 패턴 실행
+
         switch (patternIndex)
         {
             case 0: CrossPattern(); break;
@@ -101,37 +121,24 @@ public class BossInvulnerableState : BossState
         }
     }
 
-    private void PerformTileAttack()
-    {
-        // 패턴 순환
-        currentPattern = (currentPattern + 1) % 4;
-        
-        switch (currentPattern)
-        {
-            case 0:
-                CrossPattern();
-                break;
-            case 1:
-                CirclePattern();
-                break;
-            case 2:
-                SpiralPattern();
-                break;
-            case 3:
-                RandomPattern();
-                break;
-        }
-    }
-
     private void CrossPattern()
     {
-        // 월드 좌표 기준으로 타일 생성
+        // 수평 라인
         for (float i = -mapSize/2; i <= mapSize/2; i += 2f)
         {
             Vector3 horizontalPos = new Vector3(i, 0, mapCenter.z);
-            Vector3 verticalPos = new Vector3(mapCenter.x, 0, i);
             boss.SpawnTileAttack(horizontalPos);
-            boss.SpawnTileAttack(verticalPos);
+        }
+
+        // 수직 라인 (중앙 포인트 제외)
+        for (float i = -mapSize/2; i <= mapSize/2; i += 2f)
+        {
+            // 중앙 포인트가 아닐 때만 생성
+            if (Mathf.Abs(i) > 0.1f)  // 중앙 근처는 건너뛰기
+            {
+                Vector3 verticalPos = new Vector3(mapCenter.x, 0, i);
+                boss.SpawnTileAttack(verticalPos);
+            }
         }
     }
 
@@ -143,13 +150,13 @@ public class BossInvulnerableState : BossState
         for (int i = 0; i < segments; i++)
         {
             float angle = i * (360f / segments) * Mathf.Deg2Rad;
-            // 상대 좌표로 타일 생성
-            Vector3 pos = new Vector3(
+            // mapCenter를 기준으로 월드 좌표 생성
+            Vector3 spawnPos = mapCenter + new Vector3(
                 Mathf.Cos(angle) * radius,
                 0,
                 Mathf.Sin(angle) * radius
             );
-            boss.SpawnTileAttack(pos);
+            boss.SpawnTileAttack(spawnPos);
         }
     }
 
@@ -161,17 +168,22 @@ public class BossInvulnerableState : BossState
 
     private void RandomPattern()
     {
-        // 랜덤 위치에 여러 개의 타일 생성
-        int attackCount = 8;
-        for (int i = 0; i < attackCount; i++)
+        int attackCount = 15;  // 증가된 공격 횟수
+        float delay = 0.2f;    // 공격 간 딜레이
+        boss.StartCoroutine(SpawnRandomAttacks(attackCount, delay));
+    }
+
+    private IEnumerator SpawnRandomAttacks(int count, float delay)
+    {
+        for (int i = 0; i < count; i++)
         {
-            // 상대 좌표로 타일 생성
-            Vector3 randomPos = new Vector3(
+            Vector3 randomPos = mapCenter + new Vector3(
                 Random.Range(-mapSize/2, mapSize/2),
                 0,
                 Random.Range(-mapSize/2, mapSize/2)
             );
             boss.SpawnTileAttack(randomPos);
+            yield return new WaitForSeconds(delay);
         }
     }
 

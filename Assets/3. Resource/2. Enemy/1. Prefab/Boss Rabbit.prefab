@@ -74,9 +74,9 @@ GameObject:
   m_Component:
   - component: {fileID: 928064345680856982}
   - component: {fileID: 3774203893290692507}
-  - component: {fileID: -7373996523761441618}
   - component: {fileID: -4381190680195277688}
   - component: {fileID: 4464267969931980820}
+  - component: {fileID: 5948080585014975696}
   m_Layer: 7
   m_Name: Boss Rabbit
   m_TagString: Enemy
@@ -123,25 +123,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &-7373996523761441618
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3615934850579290716}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 80ff9b75729fd6e448d560d235d1f2c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  animator: {fileID: 3774203893290692507}
-  rb: {fileID: -4381190680195277688}
-  playerTarget: {fileID: 0}
-  moveSpeed: 1
-  detectionRange: 8
-  attackRange: 2
-  attackCooldown: 5
 --- !u!54 &-4381190680195277688
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -192,6 +173,24 @@ CapsuleCollider:
   m_Height: 0.7134406
   m_Direction: 1
   m_Center: {x: -0.0053066313, y: 0.34493276, z: 0}
+--- !u!114 &5948080585014975696
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3615934850579290716}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e9df7d2409265a46b85cde93f2cd6de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 30
+  invulnerablePhaseTime: 10
+  vulnerablePhaseTime: 10
+  safePosition: {x: 0, y: 0, z: 23.33}
+  battlePosition: {x: 0, y: 0, z: 11.27}
+  tileAttackPrefab: {fileID: 4883680653006289344, guid: 5606279d8415b9342877dade260633c5, type: 3}
 --- !u!1 &4914781635756691260
 GameObject:
   m_ObjectHideFlags: 0

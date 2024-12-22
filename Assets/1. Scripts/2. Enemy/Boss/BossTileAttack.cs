@@ -12,8 +12,7 @@ public class BossTileAttack : MonoBehaviour
     public float tileSize = 2f;  // 타일 한 변의 길이
 
     [Header("Visual Settings")]
-    public Material warningMaterial;  // 경고 상태 머티리얼 (빨간색 반투명)
-    public Material damageMaterial;   // 데미지 상태 머티리얼 (빨간색)
+    public Material warningMaterial;  // 경고 상태 머티리얼
     public GameObject rockEffectPrefab; // 바위 이펙트 프리팹
     private MeshRenderer meshRenderer;
     private GameObject currentRockEffect;
@@ -89,13 +88,13 @@ public class BossTileAttack : MonoBehaviour
     private IEnumerator ShowWarning()
     {
         meshRenderer.material = warningMaterial;
-        Color warningColor = new Color(1f, 1f, 0f, 0f); // 노란색 초기 알파값 0
+        Color warningColor = new Color(1f, 1f, 0f, 0.2f); // 노란색 초기 알파값 0
         float elapsedTime = 0f;
         
         // 타일이 서서히 나타나는 효과
         while (elapsedTime < warningDuration)
         {
-            float alpha = Mathf.Lerp(0, 0.5f, elapsedTime / warningDuration);
+            float alpha = Mathf.Lerp(0, 0.2f, elapsedTime / warningDuration); // 0.5f에서 0.2f로 수정
             warningColor.a = alpha;
             warningMaterial.color = warningColor;
             

@@ -10,10 +10,9 @@ public class Boss : MonoBehaviour, IDamageable
     
     [Header("Phase Settings")]
     public float invulnerablePhaseTime = 10f;
-    public float vulnerablePhaseTime = 5f;
+    public float vulnerablePhaseTime = 10f;
     public Vector3 safePosition;  // 무적 상태일 때의 위치
     public Vector3 battlePosition; // 전투 위치
-    public float moveSpeed = 10f;
 
     [Header("Attack Settings")]
     public GameObject tileAttackPrefab;
@@ -21,13 +20,25 @@ public class Boss : MonoBehaviour, IDamageable
     private BossState currentState;
     private Animator animator;
     private Player player;
-    private Vector3 patternCenter; // 패턴의 중심점 저장용
+    private CapsuleCollider capsuleCollider;  // 캡슐 콜라이더 참조 추가
+    private int defaultLayer;
+    private const string IGNORE_COLLISION_LAYER = "Boss_NoCollision"; // 레이어 이름 변경
+    private Rigidbody rb;
 
     private void Start()
     {
         currentHealth = maxHealth;
         animator = GetComponent<Animator>();
         player = FindObjectOfType<Player>();
+        capsuleCollider = GetComponent<CapsuleCollider>();  // 캡슐 콜라이더 참조 추가
+        rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            // 시작할 때 Y축은 항상 고정, 회전도 고정
+            rb.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotation;
+            rb.useGravity = false; // 중력 비활성화
+        }
+        defaultLayer = gameObject.layer;
         SetState(new BossInvulnerableState(this));
     }
 
@@ -73,12 +84,6 @@ public class Boss : MonoBehaviour, IDamageable
         Destroy(gameObject, 2f);
     }
 
-    public void SetPatternCenter(Vector3 center)
-    {
-        patternCenter = new Vector3(center.x, 0f, center.z);
-        Debug.Log($"Pattern center set to: {patternCenter}");
-    }
-
     public void SpawnTileAttack(Vector3 position)
     {
         if (tileAttackPrefab == null)
@@ -87,7 +92,7 @@ public class Boss : MonoBehaviour, IDamageable
             return;
         }
 
-        // 월드 좌표에 직접 스폰
+        // 월드 좌표에 직접 스폰, y값은 0으로 고정
         Vector3 spawnPosition = new Vector3(position.x, 0f, position.z);
         GameObject tile = Instantiate(tileAttackPrefab, spawnPosition, Quaternion.identity);
         Debug.Log($"Spawned tile at: {spawnPosition}");
@@ -116,6 +121,24 @@ public class Boss : MonoBehaviour, IDamageable
             );
             spawnAction(pos);
             yield return new WaitForSeconds(0.1f);
+        }
+    }
+
+    // SetColliderEnabled 메서드를 SetCollisionEnabled로 변경
+    public void SetCollisionEnabled(bool enabled)
+    {
+        if (rb != null)
+        {
+            if (enabled)
+            {
+                // 일반 상태: 벽과 충돌
+                rb.detectCollisions = true;
+            }
+            else
+            {
+                // 이동 상태: 벽 통과 가능
+                rb.detectCollisions = false;
+            }
         }
     }
 }
