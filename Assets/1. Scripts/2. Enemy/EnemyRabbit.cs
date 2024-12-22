@@ -10,16 +10,19 @@ public class EnemyRabbit : MonoBehaviour, IDamageable
     private int maxHealth = 3;
     private int currentHealth;
     public float moveSpeed = 5f;
-    public float detectionRange = 8f;
+    public float detectionRange = 20f;
     public float attackRange = 2f;
-    public float attackCooldown = 5f;
+    public float attackCooldown = 1.5f;
 
     private bool isStunned;
-    private bool isDead;
+    public bool isDead;
     private bool isAttacking;
-    private float stunDuration = 3f;
+    private float stunDuration = 2f;
     private float stunEndTime;
     private float lastAttackTime;
+    private float attackPreparationTime = 1.5f;  // 공격 준비 시간
+    private bool isPreparing = false;          // 공격 준비 중인지 여부
+    private float prepareStartTime;            // 공격 준비 시작 시간
 
     public void Awake()
     {
@@ -31,7 +34,6 @@ public class EnemyRabbit : MonoBehaviour, IDamageable
 
     public void Update()
     {
-        // playerTarget.playerStats.currentHealth <= 0 대신 isDead 사용
         if (isDead || playerTarget == null || 
             playerTarget.isDead || 
             playerTarget.playerCombat.isAttacking) return;
@@ -44,18 +46,35 @@ public class EnemyRabbit : MonoBehaviour, IDamageable
             
             if (distanceToPlayer <= detectionRange)
             {
-                if (distanceToPlayer <= attackRange && Time.time >= lastAttackTime + attackCooldown)
+                if (distanceToPlayer <= attackRange)
                 {
-                    StartAttack();
-                    Debug.Log("Attack!");
+                    if (!isPreparing && Time.time >= lastAttackTime + attackCooldown)
+                    {
+                        // 공격 준비 시작
+                        StartPrepareAttack();
+                    }
+                    else if (isPreparing && Time.time >= prepareStartTime + attackPreparationTime)
+                    {
+                        // 준비 시간이 지나면 공격 실행
+                        StartAttack();
+                    }
                 }
-                else if (distanceToPlayer > attackRange)
+                else
                 {
+                    // 공격 범위를 벗어나면 준비 상태 취소
+                    if (isPreparing)
+                    {
+                        CancelPrepareAttack();
+                    }
                     ChasePlayer();
                 }
             }
             else
             {
+                if (isPreparing)
+                {
+                    CancelPrepareAttack();
+                }
                 animator.SetBool("isWalking", false);
             }
         }
@@ -71,13 +90,23 @@ public class EnemyRabbit : MonoBehaviour, IDamageable
         animator.SetBool("isWalking", true);
     }
 
+    private void StartPrepareAttack()
+    {
+        isPreparing = true;
+        prepareStartTime = Time.time;
+        animator.SetBool("isWalking", false);
+        Debug.Log("Preparing Attack...");
+    }
+
+    private void CancelPrepareAttack()
+    {
+        isPreparing = false;
+        Debug.Log("Attack Preparation Cancelled");
+    }
+
     private void StartAttack()
     {
-        // playerTarget.playerStats.currentHealth <= 0 대신 isDead 사용
-        if (isDead || isAttacking || 
-            playerTarget.isDead || 
-            playerTarget.playerCombat.isAttacking) return;
-        
+        isPreparing = false;
         isAttacking = true;
         lastAttackTime = Time.time;
         animator.SetTrigger("Attack");
@@ -125,10 +154,27 @@ public class EnemyRabbit : MonoBehaviour, IDamageable
 
     private void Die()
     {
+        if (isDead) return;  // 중복 실행 방지
+        
         isDead = true;
         animator.SetTrigger("Die");
         rb.isKinematic = true;
-        OnDeath?.Invoke();  // 죽음 이벤트 발생
+
+        // 플레이어의 타겟 목록에서 안전하게 제거
+        try
+        {
+            if (playerTarget != null && playerTarget.playerCombat != null)
+            {
+                playerTarget.playerCombat.RemoveEnemy(transform);
+                Debug.Log("Successfully removed from player's target list");
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Error removing enemy: {e.Message}");
+        }
+
+        OnDeath?.Invoke();
         Destroy(gameObject, 1f);
     }
 

@@ -139,9 +139,10 @@ MonoBehaviour:
   rb: {fileID: -4381190680195277688}
   playerTarget: {fileID: 0}
   moveSpeed: 1
-  detectionRange: 8
+  detectionRange: 20
   attackRange: 2
-  attackCooldown: 5
+  attackCooldown: 1.5
+  isDead: 0
 --- !u!54 &-4381190680195277688
 Rigidbody:
   m_ObjectHideFlags: 0

@@ -35,6 +35,10 @@ public class PlayerCombat
     private float lastHitTime = 0f;
     private float comboResetTime = 2.5f; // 2.5초 동안 타격이 없으면 콤보 초기화
 
+    private Vector3 attackStartPosition;  // 공격 시작 위치
+    private Vector3 attackDirection;      // 공격 방향
+    private float attackMoveDistance = 2f; // 공격 이동 거리
+
     public void Initialize(Player player)
     {
         this.player = player;
@@ -136,21 +140,30 @@ public class PlayerCombat
 
     public void AttackMove(float speed)
     {
-        if (currentTarget == null) return;
-
-        float distanceToTarget = Vector3.Distance(player.transform.position, currentTarget.position);
-
-        if (distanceToTarget > 1.5f)
+        // 현재까지 이동한 거리 계산
+        float distanceMoved = Vector3.Distance(attackStartPosition, player.transform.position);
+        
+        // 목표 거리에 도달하지 않았다면 계속 이동
+        if (distanceMoved < attackMoveDistance)
         {
-            Vector3 targetDirection = (currentTarget.position - player.transform.position).normalized;
-            player.transform.position += speed * Time.deltaTime * targetDirection;
+            player.transform.position += attackDirection * speed * Time.deltaTime;
+        }
+        else
+        {
+            // 목표 거리에 도달했다면 정확히 그 위치로 설정
+            player.transform.position = attackStartPosition + (attackDirection * attackMoveDistance);
+            isAttackMoving = false;
         }
     }
 
     public void Attack(float power)
     {
         if (currentTarget == null) return;
-
+        
+        // 공격 시작 시 현재 위치와 방향 저장
+        attackStartPosition = player.transform.position;
+        attackDirection = (currentTarget.position - attackStartPosition).normalized;
+        
         float distanceToTarget = Vector3.Distance(player.transform.position, currentTarget.position);
         
         if (distanceToTarget <= attackRange)
@@ -165,6 +178,7 @@ public class PlayerCombat
                 }
             }
         }
+        alreadyAttacked = true;
     }
 
     public void Update()
@@ -197,5 +211,31 @@ public class PlayerCombat
     {
         comboStack = 0;
         Debug.Log("Combo Reset");
+    }
+
+    public void RemoveEnemy(Transform enemy)
+    {
+        // 죽은 적이 현재 타겟이었다면 먼저 처리
+        if (currentTarget == enemy)
+        {
+            currentTarget = null;
+        }
+
+        // 리스트에서 안전하게 제거
+        if (detectedEnemies.Contains(enemy))
+        {
+            detectedEnemies.Remove(enemy);
+        }
+        
+        // UI 상태 갱신
+        player.an.SetBool("EnemyDetected", detectedEnemies.Count > 0);
+        
+        // 새로운 타겟 찾기
+        if (currentTarget == null && detectedEnemies.Count > 0)
+        {
+            currentTarget = GetClosestEnemy();
+        }
+
+        Debug.Log($"Enemy removed. Remaining enemies: {detectedEnemies.Count}");
     }
 }
