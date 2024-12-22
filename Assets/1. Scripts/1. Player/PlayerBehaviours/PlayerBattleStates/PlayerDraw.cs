@@ -60,7 +60,17 @@ public class PlayerDraw : PlayerBehaviour
     {
         base.Exit();
         player.an.SetBool("inDraw", false);
-        playerCombat.comboStack += 1;
-        Debug.Log("콤보 : " + playerCombat.comboStack);
+
+        // 공격이 적중했을 때만 콤보 증가
+        if (playerCombat.IsAttackHit())
+        {
+            playerCombat.RegisterHit();
+            Debug.Log("Attack Hit - Combo Increased");
+        }
+        else
+        {
+            playerCombat.ResetCombo();
+            Debug.Log("Attack Missed - Combo Reset");
+        }
     }
 }

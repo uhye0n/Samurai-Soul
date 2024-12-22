@@ -38,6 +38,7 @@ public class PlayerCombat
     private Vector3 attackStartPosition;  // 공격 시작 위치
     private Vector3 attackDirection;      // 공격 방향
     private float attackMoveDistance = 2f; // 공격 이동 거리
+    private bool attackHit = false;  // 공격 적중 여부를 추적하는 변수 추가
 
     public void Initialize(Player player)
     {
@@ -160,7 +161,7 @@ public class PlayerCombat
     {
         if (currentTarget == null) return;
         
-        // 공격 시작 시 현재 위치와 방향 저장
+        attackHit = false;  // 공격 시작 시 적중 여부 초기화
         attackStartPosition = player.transform.position;
         attackDirection = (currentTarget.position - attackStartPosition).normalized;
         
@@ -175,11 +176,14 @@ public class PlayerCombat
                 if (damageable != null)
                 {
                     damageable.TakeDamage(attackDamage);
+                    attackHit = true;  // 공격이 적중했음을 표시
                 }
             }
         }
         alreadyAttacked = true;
     }
+
+    public bool IsAttackHit() => attackHit;
 
     public void Update()
     {
