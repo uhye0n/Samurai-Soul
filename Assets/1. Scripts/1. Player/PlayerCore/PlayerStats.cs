@@ -29,6 +29,8 @@ public class PlayerStats
     private const int blinkCount = 3;          // 깜빡임 횟수
     private Coroutine blinkCoroutine;
 
+    private const float damageDelayBeforeBlink = 0.5f;  // 피해 받은 후 깜빡임 시작까지의 대기 시간
+
     public void Initialize(Player player)
     {
         this.player = player;
@@ -53,7 +55,7 @@ public class PlayerStats
         
         if (blinkCoroutine != null)
             player.StopCoroutine(blinkCoroutine);
-        blinkCoroutine = player.StartCoroutine(BlinkEffect());
+        blinkCoroutine = player.StartCoroutine(DamageSequence());
 
         player.playerCombat.comboStack = 0;
     
@@ -89,8 +91,12 @@ public class PlayerStats
         }
     }
 
-    private IEnumerator BlinkEffect()
+    private IEnumerator DamageSequence()
     {
+        // 피해 받은 후 잠시 대기
+        yield return new WaitForSeconds(damageDelayBeforeBlink);
+        
+        // 깜빡임 효과 시작
         WaitForSeconds blinkWait = new WaitForSeconds(blinkDuration);
         
         for (int i = 0; i < blinkCount && !player.isDead; i++)
