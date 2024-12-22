@@ -60,11 +60,28 @@ public class PlayerInput
         {
             hasStartedRecording = true;
             checkingReturn = false;
-            patternStartPosition = currentInput;
-            inputPattern.Add(currentInput);
+
+            // 적의 방향 구하기
+            if (player.playerCombat.currentTarget != null)
+            {
+                Vector3 toEnemy = (player.playerCombat.currentTarget.position - player.transform.position).normalized;
+                // 적의 반대 방향을 2D 벡터로 변환 (z를 y로 사용)
+                patternStartPosition = new Vector2(-toEnemy.x, -toEnemy.z);
+                patternStartPosition = patternStartPosition.normalized; // 정규화
+                
+                // 시작 위치를 강제로 설정
+                inputPattern.Add(patternStartPosition);
+                Debug.Log($"패턴 기록 시작 - 시작 위치: {patternStartPosition}");
+            }
+            else
+            {
+                patternStartPosition = currentInput;
+                inputPattern.Add(currentInput);
+                Debug.Log("패턴 기록 시작 - 적 없음");
+            }
+
             lastInputTime = Time.time;
             lastJoystickInput = currentInput;
-            Debug.Log("패턴 기록 시작");
             return;
         }
 
