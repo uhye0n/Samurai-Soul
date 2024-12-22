@@ -14,6 +14,22 @@ public class Player : MonoBehaviour
     public GameObject slashEffectPrefab;
     public GameObject thrustEffectPrefab;
 
+    [Header("Mesh Renderers")]
+    [SerializeField] private SkinnedMeshRenderer[] skinnedMeshRenderers;
+    [SerializeField] private MeshRenderer[] meshRenderers;
+    
+    // 모든 렌더러를 한번에 접근하기 위한 인터페이스
+    public Renderer[] AllRenderers
+    {
+        get
+        {
+            Renderer[] allRenderers = new Renderer[skinnedMeshRenderers.Length + meshRenderers.Length];
+            skinnedMeshRenderers.CopyTo(allRenderers, 0);
+            meshRenderers.CopyTo(allRenderers, skinnedMeshRenderers.Length);
+            return allRenderers;
+        }
+    }
+
     // 플레이어 클래스 호출 - public으로 모두 변경
     public VariableJoystick variableJoystick;
     public PlayerInput playerInput;
@@ -45,6 +61,12 @@ public class Player : MonoBehaviour
 
         isDead = false;  // 초기화
 
+        if ((skinnedMeshRenderers == null || skinnedMeshRenderers.Length == 0) &&
+            (meshRenderers == null || meshRenderers.Length == 0))
+        {
+            Debug.LogWarning("No Renderers assigned to Player!");
+        }
+
         Debug.Log("Player initialized with stats");
     }
 
@@ -57,6 +79,7 @@ public class Player : MonoBehaviour
     {
         if (isDead) return;  // isDead 사용
 
+        playerCombat.ComboCheck();  // 콤보 체크를 먼저 수행
         playerBehaviour?.CheckInput();
         playerBehaviour?.CheckState();
     }

@@ -33,11 +33,31 @@ public class PlayerCombat
     }
 
     private float lastHitTime = 0f;
-    private float comboResetTime = 2.5f; // 2.5초 동안 타격이 없으면 콤보 초기화
+    private float comboResetTime = 3f; // 2.5초 동안 타격이 없으면 콤보 초기화
+    private float comboCheckInterval = 0.5f;  // 콤보 체크 간격
+    private float lastComboCheckTime = 0f;    // 마지막 콤보 체크 시간
 
     public void Initialize(Player player)
     {
         this.player = player;
+    }
+
+    public void RemoveEnemy(Transform enemy)
+    {
+        if (currentTarget == enemy)
+        {
+            currentTarget = null;
+        }
+        detectedEnemies.Remove(enemy);
+        
+        // 적 탐지 상태 업데이트
+        player.an.SetBool("EnemyDetected", detectedEnemies.Count > 0);
+        
+        // 타겟이 없어졌을 때 가장 가까운 적을 새로운 타겟으로 설정
+        if (currentTarget == null && detectedEnemies.Count > 0)
+        {
+            currentTarget = GetClosestEnemy();
+        }
     }
 
     public void DetectEnemies()
@@ -47,10 +67,14 @@ public class PlayerCombat
 
         foreach (Collider enemy in enemiesInRange)
         {
-            detectedEnemies.Add(enemy.transform);
+            // 죽은 적은 감지하지 않음
+            var enemyRabbit = enemy.GetComponent<EnemyRabbit>();
+            if (enemyRabbit != null && !enemyRabbit.isDead)
+            {
+                detectedEnemies.Add(enemy.transform);
+            }
         }
 
-        // 적 탐지 상태를 애니메이터에 반영
         player.an.SetBool("EnemyDetected", detectedEnemies.Count > 0);
     }
 
@@ -165,23 +189,24 @@ public class PlayerCombat
                 }
             }
         }
+        alreadyAttacked = true;
     }
 
-    public void Update()
+    public void ComboCheck()
     {
-        // 적 탐지 상태 업데이트
-        bool hasEnemies = detectedEnemies.Count > 0;
-        player.an.SetBool("EnemyDetected", hasEnemies);
-        bool comboOver3 = _comboStack >= 3;
+        if (Time.time - lastComboCheckTime < comboCheckInterval)
+            return;
+
+        lastComboCheckTime = Time.time;
+        DetectEnemies();
+
+        // 콤보 상태 업데이트
+        bool comboOver3 = comboStack >= 3;
         player.an.SetBool("ComboOver3", comboOver3);
 
-        if (!hasEnemies && _comboStack > 0)
-        {
-            ResetCombo();
-        }
-        
-        // 마지막 타격 이후 일정 시간이 지나면 콤보 초기화
-        if (_comboStack > 0 && Time.time - lastHitTime > comboResetTime)
+        // 적이 없거나 마지막 타격 후 시간 초과 시 콤보 리셋
+        if (comboStack > 0 && 
+            (detectedEnemies.Count == 0 || Time.time - lastHitTime > comboResetTime))
         {
             ResetCombo();
         }
@@ -189,13 +214,19 @@ public class PlayerCombat
 
     public void RegisterHit()
     {
-        comboStack++;
         lastHitTime = Time.time;
+        lastComboCheckTime = Time.time;
+        DetectEnemies();
+        comboStack++;
+        Debug.Log($"RegisterHit - New Combo Count: {comboStack}");
     }
 
     public void ResetCombo()
     {
-        comboStack = 0;
-        Debug.Log("Combo Reset");
+        if (_comboStack > 0)  // 콤보가 있을 때만 리셋 로그 출력
+        {
+            Debug.Log($"Combo Reset: Last combo was {_comboStack}");
+            comboStack = 0;
+        }
     }
 }

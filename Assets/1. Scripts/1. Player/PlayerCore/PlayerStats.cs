@@ -25,6 +25,10 @@ public class PlayerStats
     private bool isSkillInvincible = false;
     public bool isInvincible => Time.time < lastDamageTime + invincibilityDuration || isSkillInvincible;
 
+    private const float blinkDuration = 0.1f;  // 깜빡임 간격
+    private const int blinkCount = 3;          // 깜빡임 횟수
+    private Coroutine blinkCoroutine;
+
     public void Initialize(Player player)
     {
         this.player = player;
@@ -49,7 +53,11 @@ public class PlayerStats
         currentHealth -= damage;
         Debug.Log($"Player taking damage: {damage}. Current health: {currentHealth}/{maxHealth}");
         
-        player.an.SetTrigger("Hit");
+        // 깜빡임 효과 시작
+        if (blinkCoroutine != null)
+            player.StopCoroutine(blinkCoroutine);
+        blinkCoroutine = player.StartCoroutine(BlinkEffect());
+
         player.playerCombat.comboStack = 0;
     
         if (currentHealth <= 0)
@@ -62,6 +70,30 @@ public class PlayerStats
 
         if (onHealthChangedCallback != null)
             onHealthChangedCallback.Invoke();
+    }
+
+    private IEnumerator BlinkEffect()
+    {
+        for (int i = 0; i < blinkCount; i++)
+        {
+            // 모든 렌더러 비활성화
+            foreach (var renderer in player.AllRenderers)
+            {
+                if (renderer != null)
+                    renderer.enabled = false;
+            }
+
+            yield return new WaitForSeconds(blinkDuration);
+
+            // 모든 렌더러 활성화
+            foreach (var renderer in player.AllRenderers)
+            {
+                if (renderer != null)
+                    renderer.enabled = true;
+            }
+
+            yield return new WaitForSeconds(blinkDuration);
+        }
     }
 
     public void Heal(int amount)
