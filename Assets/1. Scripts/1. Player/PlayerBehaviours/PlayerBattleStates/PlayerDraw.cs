@@ -60,7 +60,7 @@ public class PlayerDraw : PlayerBehaviour
     {
         base.Exit();
         player.an.SetBool("inDraw", false);
-        playerCombat.RegisterHit();  // 콤보 증가를 다시 여기서 처리
-        Debug.Log("Draw State Exit");
+        playerCombat.comboStack += 1;
+        Debug.Log("콤보 : " + playerCombat.comboStack);
     }
 }

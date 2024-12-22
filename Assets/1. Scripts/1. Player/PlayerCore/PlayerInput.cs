@@ -14,6 +14,7 @@ public class PlayerInput
     private float inputDelay = 0.1f; // 입력 기록 간격
     private float lastInputTime = 0f;
     private Vector2 patternStartPosition;
+    private float patternCompleteThreshold = 0.3f; // 시작 위치와의 거리 체크용 임계값
     private const int MIN_PATTERN_POINTS = 8;  // 최소 패턴 포인트 수
     private const int MAX_PATTERN_POINTS = 30; // 최대 패턴 포인트 수
     private float returnThreshold = 0.4f;      // 시작점 복귀 판정 거리

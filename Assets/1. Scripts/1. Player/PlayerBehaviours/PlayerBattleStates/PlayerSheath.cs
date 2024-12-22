@@ -17,22 +17,19 @@ public class PlayerSheath : PlayerBehaviour
     {
         base.Enter();
 
-        // 콤보가 3의 배수일 때 CommandReady로 전환
-        if (playerCombat.detectedEnemies.Count > 0 && 
-            playerCombat.comboStack > 0 && 
-            playerCombat.comboStack % 3 == 0)
+        if (playerCombat.detectedEnemies.Count > 0 && !playerCombat.alreadyAttacked && playerCombat.comboStack % 3 == 0 && playerCombat.comboStack > 0)
         {
-            Debug.Log($"Entering CommandReady with combo: {playerCombat.comboStack}");
             Function.SetBehaviour(player, new PlayerCommandReady(player));
-            return;
         }
-
-        player.an.SetBool("inSheath", true);
-        player.an.SetLayerWeight(lowerBodyLayerIndex, 0.75f);
-        readyCoroutine = player.StartCoroutine(Function.DelayedAction(0.5f, "None",
-                () => {},
-                () => {canAttack = true;},
-                () => {canAttack = false; attackDone = false;}));
+        else
+        {
+            player.an.SetBool("inSheath", true);
+            player.an.SetLayerWeight(lowerBodyLayerIndex, 0.75f);
+            readyCoroutine = player.StartCoroutine(Function.DelayedAction(0.5f, "None",
+                    () => {},
+                    () => {canAttack = true;},
+                    () => {canAttack = false; attackDone = false;}));
+        }
     }
 
     public override void CheckInput()
@@ -76,6 +73,9 @@ public class PlayerSheath : PlayerBehaviour
         base.Exit();
         player.an.SetBool("inSheath", false);
         player.an.SetLayerWeight(lowerBodyLayerIndex, 0);
-        playerCombat.alreadyAttacked = false;  // 공격 플래그 초기화
+        if (playerCombat.alreadyAttacked)
+        {
+            playerCombat.alreadyAttacked = false;
+        }
     }
 }
